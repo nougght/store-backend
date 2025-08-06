@@ -23,7 +23,7 @@ func (r *FavouriteItemsRepository) AddToFavourites(ctx context.Context, item *mo
 func (r *FavouriteItemsRepository) GetFavouritesByUserID(ctx context.Context, userID string) ([]models.FavouriteItem, error) {
 	var favouriteItems []models.FavouriteItem
 
-	err := r.db.SelectContext(ctx, &favouriteItems, "SELECT * FROM auth.favourite_items WHERE user_id = $1 ORDER BY created_at ASC", userID)
+	err := r.db.SelectContext(ctx, &favouriteItems, "SELECT * FROM user.favourite_items WHERE user_id = $1 ORDER BY created_at ASC", userID)
 	if err != nil {
 		return nil, err
 	}
