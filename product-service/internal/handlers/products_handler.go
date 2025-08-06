@@ -35,7 +35,7 @@ func (h *ProductsHandler) GetProducts(c *gin.Context) {
 		ids := strings.Split(idsParam, ",")
 
 		for _, id := range ids {
-			if h.tools.IsValidUUID(id) {
+			if !h.tools.IsValidUUID(id) {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format" + id})
 				return
 			}
