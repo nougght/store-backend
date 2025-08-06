@@ -5,16 +5,33 @@ package main
 // Зе1е pqsl
 
 import (
-
-	"category-service/handlers"
+	"log"
+	"category-service/internal/config"
+	"category-service/internal/handlers"
+	"category-service/internal/pkg/database"
+	"category-service/internal/repositories"
+	"category-service/internal/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	cfg := config.GetPostgresConfig()
+
+	db, err := database.NewPostgresDB(cfg)
+
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer db.Close()
+	
+	categoriesRepository := repositories.NewCategoriesRepository(db)
+	categoriesService := services.NewCategoriesService(categoriesRepository)
+	categoriesHandler := handlers.NewCategoryHandler(categoriesService)
+
 	router := gin.Default()
-	router.GET("/categories", handlers.GetCategories)
-	router.POST("/categories", handlers.PostCategory)
+	router.GET("/categories", categoriesHandler.GetCategories)
+	router.POST("/categories", categoriesHandler.PostCategory)
 	router.Run("0.0.0.0:8083")
 }
 

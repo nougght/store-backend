@@ -34,6 +34,7 @@ func main() {
 	cartItemsService := services.NewCartItemsService(cartItemsRepository)
 	cartItemsHandler := handlers.NewCartItemsHandler(cartItemsService)
 
+	
 	router := gin.Default()
 
 	router.GET("/cart/:user_id", cartHandler.GetCart)

@@ -14,7 +14,7 @@ type CartHandler struct {
 }
 
 func NewCartHandler(service *services.CartService) *CartHandler {
-	return &CartHandler{service: service}
+	return &CartHandler{service: service, tools: &models.Tools{}}
 }
 
 func (h *CartHandler) GetCart(c *gin.Context) {

@@ -5,27 +5,33 @@ package main
 // Зе1е pqsl
 
 import (
-	"auth-service/handlers"
+	"auth-service/internal/config"
+	"auth-service/internal/handlers"
+	"auth-service/internal/pkg/database"
+	"auth-service/internal/repositories"
+	"auth-service/internal/services"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	router := gin.Default()
-	router.POST("/user/:user_id/favourites", func(c *gin.Context) {
-		userId := c.Param("user_id")
-		handlers.AddToFavourites(c, userId)
+	cfg := config.GetPostgresConfig()
 
-	})
-	router.GET("/user/:user_id/favourites", func(c *gin.Context) {
-		userId := c.Param("user_id")
-		handlers.GetFavouritesByUserID(c, userId)
-	})
-	router.DELETE("/user/:user_id/favourites/:product_id", func(c *gin.Context) {
-		userId := c.Param("user_id")
-		productId := c.Param("product_id")
-		handlers.DeleteFromFavourites(c, userId, productId)
-	})
+	db, err := database.NewPostgresDB(cfg)
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer db.Close()
+	
+	favouriteItemsRepository := repositories.NewFavouriteItemsRepository(db)
+	favouriteItemsService := services.NewFavouriteItemsService(favouriteItemsRepository)
+	favouriteItemsHandler := handlers.NewFavouriteItemsHandler(favouriteItemsService)
+
+	router := gin.Default()
+	router.POST("/user/:user_id/favourites", favouriteItemsHandler.AddToFavourites)
+	router.GET("/user/:user_id/favourites", favouriteItemsHandler.GetFavouritesByUserID)
+	router.DELETE("/user/:user_id/favourites/:product_id", favouriteItemsHandler.DeleteFromFavourites)
 
 	router.Run("0.0.0.0:8084")
 }
