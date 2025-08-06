@@ -16,7 +16,7 @@ func NewFavouriteItemsRepository(db *sqlx.DB) *FavouriteItemsRepository {
 }
 
 func (r *FavouriteItemsRepository) AddToFavourites(ctx context.Context, item *models.FavouriteItem) error {
-	query := `INSERT INTO auth.favourite_items (user_id, product_id) VALUES ($1, $2) returning id, added_at`
+	query := `INSERT INTO user.favourite_items (user_id, product_id) VALUES ($1, $2) returning id, added_at`
 	return r.db.QueryRowxContext(ctx, query, item.UserID, item.ProductID).StructScan(item)
 }
 
@@ -31,7 +31,7 @@ func (r *FavouriteItemsRepository) GetFavouritesByUserID(ctx context.Context, us
 }
 
 func (r *FavouriteItemsRepository) DeleteFromFavourites(ctx context.Context, userID, productID string) error {
-	query := `DELETE FROM auth.favourite_items WHERE user_id = $1 AND product_id = $2`
+	query := `DELETE FROM user.favourite_items WHERE user_id = $1 AND product_id = $2`
 	_, err := r.db.ExecContext(ctx, query, userID, productID)
 
 	return err
