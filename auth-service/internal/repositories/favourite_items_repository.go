@@ -16,7 +16,7 @@ func NewFavouriteItemsRepository(db *sqlx.DB) *FavouriteItemsRepository {
 }
 
 func (r *FavouriteItemsRepository) AddToFavourites(ctx context.Context, item *models.FavouriteItem) error {
-	query := `INSERT INTO users.user_favourites (user_id, product_id) VALUES ($1, $2) returning added_at`
+	query := `INSERT INTO users.user_favourites (user_id, product_id) VALUES ($1, $2) returning user_id, product_id, created_at`
 	return r.db.QueryRowxContext(ctx, query, item.UserID, item.ProductID).StructScan(item)
 }
 
