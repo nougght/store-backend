@@ -21,13 +21,34 @@ func NewProductsHandler(service *services.ProductsService) *ProductsHandler {
 
 func (h *ProductsHandler) GetProducts(c *gin.Context) {
 	fmt.Println("GetProducts")
-	products, err := h.service.GetProducts(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
-		return
-	}
+	idsParam := c.Query("ids")
+	fmt.Println("idsParam: ", idsParam)
+	if idsParam == "" {
+		products, err := h.service.GetProducts(c.Request.Context())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
+			return
+		}
 
-	c.JSON(http.StatusOK, products)
+		c.JSON(http.StatusOK, products)
+	} else {
+		ids := strings.Split(idsParam, ",")
+
+		for _, id := range ids {
+			if h.tools.IsValidUUID(id) {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format" + id})
+				return
+			}
+		}
+
+		products, err := h.service.GetProductByIDs(c.Request.Context(), ids)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, products)
+	}
 }
 
 func (h *ProductsHandler) GetProductsByIDs(c *gin.Context) {

@@ -31,7 +31,7 @@ func main() {
 
 	// Define routes
 	router.GET("/products", productHandler.GetProducts)
-	router.GET("/products:ids", productHandler.GetProductsByIDs)
+	router.GET("/products:ids", productHandler.GetProductsByIDs) // не работает
 
 	// Run server
 	router.Run("0.0.0.0:8081")
