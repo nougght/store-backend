@@ -20,6 +20,7 @@ func NewProductsHandler(service *services.ProductsService) *ProductsHandler {
 }
 
 func (h *ProductsHandler) GetProducts(c *gin.Context) {
+	fmt.Println("GetProducts")
 	products, err := h.service.GetProducts(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
@@ -29,7 +30,7 @@ func (h *ProductsHandler) GetProducts(c *gin.Context) {
 	c.JSON(http.StatusOK, products)
 }
 
-func (h *ProductsHandler) GetProductByIDs(c *gin.Context) {
+func (h *ProductsHandler) GetProductsByIDs(c *gin.Context) {
 	idsParam := c.Query("ids")
 	fmt.Println("idsParam: ", idsParam)
 	if idsParam == "" {
