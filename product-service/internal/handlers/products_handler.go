@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
-	"product-service/internal/services"
 	"product-service/internal/models"
+	"product-service/internal/services"
 	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +31,7 @@ func (h *ProductsHandler) GetProducts(c *gin.Context) {
 
 func (h *ProductsHandler) GetProductByIDs(c *gin.Context) {
 	idsParam := c.Query("ids")
+	fmt.Println("idsParam: ", idsParam)
 	if idsParam == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing ids parameter"})
 		return
@@ -37,12 +40,11 @@ func (h *ProductsHandler) GetProductByIDs(c *gin.Context) {
 	// Разделяем строку на массив ID
 	ids := strings.Split(idsParam, ",")
 
-	
 	for _, id := range ids {
-	    if h.tools.IsValidUUID(id){
-	        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format" + id})
-	        return
-	    }
+		if h.tools.IsValidUUID(id) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format" + id})
+			return
+		}
 	}
 
 	// Получаем товары из БД
@@ -54,4 +56,3 @@ func (h *ProductsHandler) GetProductByIDs(c *gin.Context) {
 
 	c.JSON(http.StatusOK, products)
 }
-

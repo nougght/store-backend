@@ -19,12 +19,19 @@ func NewFavouriteItemsHandler(service *services.FavouriteItemsService) *Favourit
 }
 
 func (h *FavouriteItemsHandler) AddToFavourites(c *gin.Context) {
+	userID := c.Param("user_id")
+	if !h.tools.IsValidUUID(userID) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID" + userID})
+		return
+	}
+
 	var item models.FavouriteItem
 	if err := c.ShouldBindJSON(&item); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input" + err.Error()})
 		return
 	}
-
+	item.UserID = userID
+	
 	if err := h.service.AddToFavourites(c.Request.Context(), &item); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add item to favourites" + err.Error()})
 		return

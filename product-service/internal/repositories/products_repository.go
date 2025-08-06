@@ -23,6 +23,7 @@ func (r *ProductsRepository) GetProducts(ctx context.Context) ([]models.Product,
 	if err := r.db.Select(&products, query); err != nil {
 		return nil, err
 	}
+	fmt.Println("Products found: ", len(products))
 	return products, nil
 }
 
@@ -36,5 +37,3 @@ func (r *ProductsRepository) GetProductByIDs(ctx context.Context, ids []string) 
 	fmt.Println("Products found: ", products)
 	return products, nil
 }
-
-
