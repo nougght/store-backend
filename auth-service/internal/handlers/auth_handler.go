@@ -39,9 +39,14 @@ func (s *AuthHandler) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"user": user})
 }
 func (s *AuthHandler) SendCode(ctx *gin.Context) {
-	recipient := ctx.Request.FormValue("recipient")
-	code := &models.AuthCode{Recipient: recipient, Channel: ctx.Request.FormValue("channel"), ExpiresAt: time.Now().Add(time.Minute * 5)}
-	err := s.service.SendCode(ctx, recipient, code)
+	var code models.AuthCode
+	err := ctx.ShouldBindJSON(&code)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	code.ExpiresAt = time.Now().Add(time.Minute * 5)
+	err = s.service.SendCode(ctx, code.recipient, code)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

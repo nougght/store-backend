@@ -34,6 +34,7 @@ func (s *AuthService) SendCode(ctx context.Context, recipient string, code *mode
 		return err
 	}
 	fmt.Println("code", code)
+	fmt.Println("channel", code.Channel)
 	if code.Channel == "email" {
 		err := s.emailSMTP.SendVerificationCode(recipient, code.Code)
 		if err != nil {
