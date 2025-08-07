@@ -23,17 +23,33 @@ func main() {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer db.Close()
-	
+
 	favouriteItemsRepository := repositories.NewFavouriteItemsRepository(db)
 	favouriteItemsService := services.NewFavouriteItemsService(favouriteItemsRepository)
 	favouriteItemsHandler := handlers.NewFavouriteItemsHandler(favouriteItemsService)
 
+	authRepository := repositories.NewAuthRepository(db)
+	authService := services.NewAuthService(authRepository)
+	authHandler := handlers.NewAuthHandler(authService)
+	
 	router := gin.Default()
 	router.POST("/user/:user_id/favourites", favouriteItemsHandler.AddToFavourites)
 	router.GET("/user/:user_id/favourites", favouriteItemsHandler.GetFavouritesByUserID)
 	router.DELETE("/user/:user_id/favourites/:product_id", favouriteItemsHandler.DeleteFromFavourites)
 
+	router.POST("/user/check/:email_or_phone", authHandler.CheckUserExists)
+	router.POST("user/logout/:user_id", authHandler.LogOut)
+
+	router.POST("auth/login", authHandler.LogIn)
+	router.POST("auth/register", authHandler.Register)
+	router.POST("auth/code/send", authHandler.SendCode)
+	router.POST("auth/code/verify",authHandler.VerifyCode)
+	// router.POST("auth/refresh", handlers.RefreshToken)
+	
+	router.POST("auth/check", authHandler.CheckToken)
+
 	router.Run("0.0.0.0:8084")
+	// mailHandler.SendMailCode("muhamedmakusev@gmail.com")
 }
 
 // var categories = []Category{
