@@ -24,6 +24,15 @@ func main() {
 	}))
 
 	r.RedirectTrailingSlash = false // Отключаем авторедиректы
+	r.POST("/user/check/:email_or_phone", authServiceURL)
+	r.GET("/user/:user_id", authServiceURL)
+	r.GET("/user/:user_id/session", authServiceURL)
+	r.POST("user/logout/:user_id", authServiceURL)
+
+	r.POST("auth/login", authServiceURL)
+	r.POST("auth/register", authServiceURL)
+	r.POST("auth/code/send", authServiceURL)
+	r.POST("auth/code/verify", authServiceURL)
 
 	r.GET("/cart/:user_id", reverseProxy(cartServiceURL))
 	r.GET("/cart/items/:cart_id", reverseProxy(cartServiceURL))
