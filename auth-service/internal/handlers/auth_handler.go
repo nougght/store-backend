@@ -5,6 +5,8 @@ import (
 	"auth-service/internal/services"
 	"net/http"
 
+	"time"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,7 +40,7 @@ func (s *AuthHandler) GetUser(ctx *gin.Context) {
 }
 func (s *AuthHandler) SendCode(ctx *gin.Context) {
 	recipient := ctx.Request.FormValue("recipient")
-	code := &models.AuthCode{Recipient: recipient, Channel: ctx.Request.FormValue("channel")}
+	code := &models.AuthCode{Recipient: recipient, Channel: ctx.Request.FormValue("channel"), ExpiresAt: time.Now().Add(time.Minute * 5)}
 	err := s.service.SendCode(ctx, recipient, code)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -132,4 +134,3 @@ func (s *AuthHandler) CheckToken(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"user_id": user_id})
 }
-

@@ -49,9 +49,9 @@ func (r *AuthRepository) CheckUserExists(ctx context.Context, emailOrPhone strin
 
 func (r *AuthRepository) CreateAuthCode(ctx context.Context, code *models.AuthCode) error {
 	err := r.db.QueryRowxContext(ctx, `
-		INSERT INTO auth.auth_codes (user_id, code, channel, expires_at, recipient)
-		VALUES ($1, $2, $3, $4, $5) returning code_id
-	`, code.AuthCodeID, code.UserID, code.Code, code.Channel, code.Recipient).StructScan(code)
+		INSERT INTO auth.auth_codes (code, channel, expires_at, recipient)
+		VALUES ($1, $2, $3, $4) returning code_id
+	`, code.Code, code.Channel, code.Recipient).StructScan(code)
 	return err
 }
 
