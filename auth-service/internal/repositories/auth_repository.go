@@ -51,7 +51,7 @@ func (r *AuthRepository) CreateAuthCode(ctx context.Context, code *models.AuthCo
 	err := r.db.QueryRowxContext(ctx, `
 		INSERT INTO auth.auth_codes (code, channel, expires_at, recipient)
 		VALUES ($1, $2, $3, $4) returning code_id
-	`, code.Code, code.Channel, code.Recipient).StructScan(code)
+	`, code.Code, code.Channel, code.ExpiresAt, code.Recipient).StructScan(code)
 	return err
 }
 
