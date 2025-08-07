@@ -33,7 +33,7 @@ func (s *AuthService) SendCode(ctx context.Context, recipient string, code *mode
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("code", code)
 	if code.Channel == "email" {
 		err := s.emailSMTP.SendVerificationCode(recipient, code.Code)
 		if err != nil {
@@ -110,7 +110,6 @@ func (s *AuthService) Register(ctx context.Context, user *models.User, code *mod
 	s.repo.UpdateAuthCode(ctx, code)
 	return session, nil
 }
-
 
 func (s *AuthService) LogOut(ctx context.Context, userID string) error {
 	session, err := s.repo.GetSessionByUserID(ctx, userID)
