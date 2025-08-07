@@ -38,6 +38,8 @@ func main() {
 	router.DELETE("/user/:user_id/favourites/:product_id", favouriteItemsHandler.DeleteFromFavourites)
 
 	router.POST("/user/check/:email_or_phone", authHandler.CheckUserExists)
+	router.GET("/user/:user_id", authHandler.GetUser)
+	router.GET("/user/:user_id/session", authHandler.GetUserSession)
 	router.POST("user/logout/:user_id", authHandler.LogOut)
 
 	router.POST("auth/login", authHandler.LogIn)

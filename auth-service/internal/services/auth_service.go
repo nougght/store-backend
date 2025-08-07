@@ -22,6 +22,10 @@ func (s *AuthService) CheckUserExists(ctx context.Context, emailOrPhone string) 
 	return s.repo.CheckUserExists(ctx, emailOrPhone)
 }
 
+func (s *AuthService) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
+	return s.repo.GetUserByID(ctx, userID)
+}
+
 func (s *AuthService) SendCode(ctx context.Context, recipient string, code *models.AuthCode) error {
 	newCode := s.tools.GenerateAuthCode()
 	code.Code = newCode
@@ -42,23 +46,29 @@ func (s *AuthService) SendCode(ctx context.Context, recipient string, code *mode
 	return nil
 }
 
-func (s *AuthService) VerifyCode(ctx context.Context, recipient string, code string) error {
+func (s *AuthService) VerifyCode(ctx context.Context, recipient string, code string) (bool, error) {
 	isValid, err := s.repo.VerifyAuthCode(ctx, recipient, code)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if !isValid {
-		return fmt.Errorf("invalid code")
+		return false, fmt.Errorf("invalid code")
 	}
 
-	return nil
+	return true, nil
 }
 
-func (s *AuthService) LogIn(ctx context.Context, user *models.User, code *models.AuthCode) (string, error) {
-
+func (s *AuthService) LogIn(ctx context.Context, user *models.User, code *models.AuthCode) (*models.Session, error) {
+	isValid, err := s.VerifyCode(ctx, code.Recipient, code.Code)
+	if err != nil {
+		return nil, err
+	}
+	if !isValid {
+		return nil, fmt.Errorf("invalid code")
+	}
 	token, err := s.tools.GenerateJWTToken(user.UserID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	session := &models.Session{
 		UserID: user.UserID,
@@ -66,17 +76,24 @@ func (s *AuthService) LogIn(ctx context.Context, user *models.User, code *models
 	}
 	err = s.repo.CreateSession(ctx, session)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	s.repo.UpdateAuthCode(ctx, code)
-	return token, nil
+	return session, nil
 }
 
-func (s *AuthService) Register(ctx context.Context, user *models.User, code *models.AuthCode) (string, error) {
+func (s *AuthService) Register(ctx context.Context, user *models.User, code *models.AuthCode) (*models.Session, error) {
+	isValid, err := s.VerifyCode(ctx, code.Recipient, code.Code)
+	if err != nil {
+		return nil, err
+	}
+	if !isValid {
+		return nil, fmt.Errorf("invalid code")
+	}
 	token, err := s.tools.GenerateJWTToken(user.UserID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	s.repo.CreateUser(ctx, user)
 
@@ -87,11 +104,11 @@ func (s *AuthService) Register(ctx context.Context, user *models.User, code *mod
 
 	err = s.repo.CreateSession(ctx, session)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	s.repo.UpdateAuthCode(ctx, code)
-	return token, nil
+	return session, nil
 }
 
 
@@ -105,4 +122,8 @@ func (s *AuthService) LogOut(ctx context.Context, userID string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *AuthService) GetSessionByUserID(ctx context.Context, userID string) (*models.Session, error) {
+	return s.repo.GetSessionByUserID(ctx, userID)
 }
