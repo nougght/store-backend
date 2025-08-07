@@ -15,7 +15,7 @@ func GetPostgresConfig() *PostgresConfig {
 		Port:     "5432",
 		User:     "postgres",
 		Password: "3313",
-		DBName:   "store_db",
+		DBName:   "store",
 		SSLMode:  "disable",
 	}
 }
