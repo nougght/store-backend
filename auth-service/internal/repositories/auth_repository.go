@@ -3,6 +3,7 @@ package repositories
 import (
 	"auth-service/internal/models"
 	"context"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -16,10 +17,11 @@ func NewAuthRepository(db *sqlx.DB) *AuthRepository {
 }
 
 func (r *AuthRepository) CreateUser(ctx context.Context, user *models.User) error {
+	fmt.Println("username", user.Username, "email", user.Email, "phone", user.Phone)
 	err := r.db.QueryRowxContext(ctx, `
 		INSERT INTO auth.users (username, email, phone)
 		VALUES ($1, $2, $3) returning user_id
-	`, user.UserID, user.Username, user.Email, user.Phone).StructScan(user)
+	`, user.Username, user.Email, user.Phone).Scan(&user.UserID)
 	return err
 }
 
@@ -41,10 +43,25 @@ func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*mod
 	return &user, err
 }
 
-func (r *AuthRepository) CheckUserExists(ctx context.Context, emailOrPhone string) (bool, error) {
+func (r *AuthRepository) CheckUserExists(ctx context.Context, emailOrPhone string) (string, error) {
 	var exists bool
+
 	err := r.db.GetContext(ctx, &exists, "SELECT EXISTS(SELECT 1 FROM auth.users WHERE email = $1 OR phone = $2)", emailOrPhone, emailOrPhone)
-	return exists, err
+	if err != nil {
+		return "", err
+	} else if exists {
+		var user_id string
+		err := r.db.GetContext(ctx, &user_id, "SELECT user_id FROM auth.users WHERE email = $1 OR phone = $2", emailOrPhone, emailOrPhone)
+		if err == nil {
+			return user_id, nil
+		}
+	}
+	return "", nil
+}
+
+func (r *AuthRepository) DeleteUserByID(ctx context.Context, userID string) error {
+	_, err := r.db.ExecContext(ctx, "DELETE FROM auth.users WHERE user_id = $1", userID)
+	return err
 }
 
 func (r *AuthRepository) CreateAuthCode(ctx context.Context, code *models.AuthCode) error {
@@ -56,11 +73,19 @@ func (r *AuthRepository) CreateAuthCode(ctx context.Context, code *models.AuthCo
 }
 
 func (r *AuthRepository) UpdateAuthCode(ctx context.Context, code *models.AuthCode) error {
-	_, err := r.db.ExecContext(ctx, `
+	d, err := r.db.ExecContext(ctx, `
 		UPDATE auth.auth_codes
-		SET user_id = $1, code = $2, channel = $3, expires_at = $4, used = true
-		WHERE code_id = $5 AND recipient = $6
-	`, code.UserID, code.Code, code.Channel, code.ExpiresAt, code.AuthCodeID)
+		SET user_id = $1, code = $2, channel = $3, expires_at = $4, used = $5
+		WHERE code_id = $6 AND recipient = $7
+	`, code.UserID, code.Code, code.Channel, code.ExpiresAt, code.Used, code.AuthCodeID, code.Recipient)
+	if err != nil {
+		return err
+	}
+	rows, err := d.RowsAffected()
+	if err != nil {
+		return err
+	}
+	fmt.Println("updated", rows, "code", code.Code, "user_id", code.UserID, "channel", code.Channel, "expires_at", code.ExpiresAt, "used", code.Used, "code_id", code.AuthCodeID, "recipient", code.Recipient)
 	return err
 }
 
@@ -68,6 +93,15 @@ func (r *AuthRepository) VerifyAuthCode(ctx context.Context, recipient string, c
 	var isValid bool
 	err := r.db.GetContext(ctx, &isValid, "SELECT EXISTS(SELECT 1 FROM auth.auth_codes WHERE code = $1 AND used = false AND recipient = $2)", code, recipient)
 	return isValid, err
+}
+
+func (r *AuthRepository) GetAuthCodeByRecipient(ctx context.Context, recipient string) (*models.AuthCode, error) {
+	var authCode models.AuthCode
+	err := r.db.GetContext(ctx, &authCode, "SELECT * FROM auth.auth_codes WHERE recipient = $1 AND used = false", recipient)
+	if authCode.AuthCodeID == "" {
+		return nil, err
+	}
+	return &authCode, err
 }
 
 func (r *AuthRepository) GetAuthCodeByCodeAndUserID(ctx context.Context, code string, userID string) (*models.AuthCode, error) {
@@ -89,19 +123,19 @@ func (r *AuthRepository) DeleteAuthCodeByID(ctx context.Context, codeID string) 
 
 func (r *AuthRepository) CreateSession(ctx context.Context, session *models.Session) error {
 	err := r.db.QueryRowxContext(ctx, `
-		INSERT INTO sessions (session_id, user_id, expires_at)
-		VALUES ($1, $2, $3) returning session_id
-	`, session.SessionID, session.UserID, session.ExpiresAt).StructScan(session)
+		INSERT INTO auth.sessions (token, user_id)
+		VALUES ($1, $2) returning session_id
+	`, session.Token, session.UserID).StructScan(session)
 	return err
 }
 
 func (r *AuthRepository) GetSessionByUserID(ctx context.Context, userID string) (*models.Session, error) {
 	var session models.Session
-	err := r.db.GetContext(ctx, &session, "SELECT * FROM sessions WHERE user_id = $1", userID)
+	err := r.db.GetContext(ctx, &session, "SELECT * FROM auth.sessions WHERE user_id = $1", userID)
 	return &session, err
 }
 
 func (r *AuthRepository) DeleteSessionByID(ctx context.Context, sessionID string) error {
-	_, err := r.db.ExecContext(ctx, "DELETE FROM sessions WHERE session_id = $1", sessionID)
+	_, err := r.db.ExecContext(ctx, "DELETE FROM auth.sessions WHERE session_id = $1", sessionID)
 	return err
 }

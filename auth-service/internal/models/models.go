@@ -8,19 +8,20 @@ import (
 	"time"
 
 	"encoding/base64"
-	"github.com/golang-jwt/jwt"
 	"net/smtp"
+
+	"github.com/golang-jwt/jwt"
 
 	"github.com/google/uuid"
 )
 
 type User struct {
-	UserID     string    `db:"user_id" json:"user_id"`
-	Email      string    `db:"email" json:"email"`
-	Phone      string    `db:"phone" json:"phone"`
-	CreatedAt  time.Time `db:"created_at" json:"created_at"`
-	LastActive time.Time `db:"last_active" json:"last_active"`
-	Username   string    `db:"username" json:"username"`
+	UserID     string     `db:"user_id" json:"user_id"`
+	Email      string     `db:"email" json:"email"`
+	Phone      string     `db:"phone" json:"phone"`
+	CreatedAt  time.Time  `db:"created_at" json:"created_at"`
+	LastActive *time.Time `db:"last_active" json:"last_active"`
+	Username   string     `db:"username" json:"username"`
 }
 
 type FavouriteItem struct {
@@ -29,15 +30,14 @@ type FavouriteItem struct {
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
 
-
 type Session struct {
-	SessionID  string    `db:"session_id" json:"session_id"`
-	UserID     string    `db:"user_id" json:"user_id"`
-	Token      string    `db:"token" json:"token"`
-	DeviceInfo string    `db:"device_info" json:"device_info,omitempty"`
-	IPAddress  net.IP    `db:"ip_address" json:"ip_address,omitempty"`
-	CreatedAt  time.Time `db:"created_at" json:"created_at"`
-	ExpiresAt  time.Time `db:"expires_at" json:"expires_at"`
+	SessionID  string     `db:"session_id" json:"session_id"`
+	UserID     string     `db:"user_id" json:"user_id"`
+	Token      string     `db:"token" json:"token"`
+	DeviceInfo *string    `db:"device_info" json:"device_info,omitempty"`
+	IPAddress  *net.IP    `db:"ip_address" json:"ip_address,omitempty"`
+	CreatedAt  time.Time  `db:"created_at" json:"created_at"`
+	ExpiresAt  *time.Time `db:"expires_at" json:"expires_at"`
 }
 
 type AuthCode struct {
@@ -48,7 +48,7 @@ type AuthCode struct {
 	Channel    string    `db:"channel" json:"channel"`
 	ExpiresAt  time.Time `db:"expires_at" json:"expires_at"`
 	Used       bool      `db:"used" json:"used"`
-	IPAddress  net.IP    `db:"ip_address" json:"ip_address,omitempty"`
+	IPAddress  *net.IP   `db:"ip_address" json:"ip_address,omitempty"`
 }
 
 type EmailSMTP struct {
@@ -90,7 +90,7 @@ func (e *EmailSMTP) SendVerificationCode(email string, code string) error {
 	)
 
 	if err != nil {
-		fmt.Println("Ошибка отправки:", err)
+		fmt.Println("Ошибка отправки:", err, message)
 		return err
 	} else {
 		fmt.Println("Письмо успешно отправлено! ")
@@ -109,7 +109,7 @@ type CustomClaims struct {
 	UserID string `json:"user_id"`
 	jwt.StandardClaims
 }
-type Tools struct{
+type Tools struct {
 }
 
 func (t *Tools) IsValidUUID(u string) bool {
@@ -122,7 +122,6 @@ func (t *Tools) GenerateAuthCode() string {
 	code := fmt.Sprintf("%06d", n) // Добавляем ведущие нули
 	return code
 }
-
 
 func (t *Tools) GenerateJWTToken(userId string) (string, error) {
 	claims := CustomClaims{
@@ -149,8 +148,14 @@ func (t *Tools) ValidateJWTToken(tokenString string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// fmt.Println("token", token)
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		userID := claims["user_id"].(string)
+		userID, ok := claims["user_id"].(string)
+		fmt.Println(userID)
+		if !ok {
+			return "", fmt.Errorf("invalid token")
+		}
+
 		return userID, nil
 	}
 	return "", fmt.Errorf("invalid token")

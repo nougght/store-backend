@@ -15,10 +15,10 @@ type AuthService struct {
 }
 
 func NewAuthService(repo *repositories.AuthRepository) *AuthService {
-	return &AuthService{repo: repo, emailSMTP: &models.EmailSMTP{}, smsSender: nil, tools: &models.Tools{}}
+	return &AuthService{repo: repo, emailSMTP: models.NewEmailSMTP(), smsSender: nil, tools: &models.Tools{}}
 }
 
-func (s *AuthService) CheckUserExists(ctx context.Context, emailOrPhone string) (bool, error) {
+func (s *AuthService) CheckUserExists(ctx context.Context, emailOrPhone string) (string, error) {
 	return s.repo.CheckUserExists(ctx, emailOrPhone)
 }
 
@@ -71,6 +71,7 @@ func (s *AuthService) LogIn(ctx context.Context, user *models.User, code *models
 	if err != nil {
 		return nil, err
 	}
+
 	session := &models.Session{
 		UserID: user.UserID,
 		Token:  token,
@@ -79,8 +80,12 @@ func (s *AuthService) LogIn(ctx context.Context, user *models.User, code *models
 	if err != nil {
 		return nil, err
 	}
-
-	s.repo.UpdateAuthCode(ctx, code)
+	code.Used = true
+	code.UserID = user.UserID
+	err = s.repo.UpdateAuthCode(ctx, code)
+	if err != nil {
+		fmt.Println("ошибка обновления кода", err)
+	}
 	return session, nil
 }
 
@@ -96,19 +101,32 @@ func (s *AuthService) Register(ctx context.Context, user *models.User, code *mod
 	if err != nil {
 		return nil, err
 	}
-	s.repo.CreateUser(ctx, user)
+	err = s.repo.CreateUser(ctx, user)
+	if user.UserID == "" {
+		s.repo.DeleteUserByID(ctx, user.UserID)
+		return nil, fmt.Errorf("user not created")
+	}
+	if err != nil {
+		s.repo.DeleteUserByID(ctx, user.UserID)
+		return nil, err
+	}
 
 	session := &models.Session{
 		UserID: user.UserID,
 		Token:  token,
 	}
-
+	fmt.Println("session", session, "user", user)
 	err = s.repo.CreateSession(ctx, session)
 	if err != nil {
+		s.repo.DeleteUserByID(ctx, user.UserID)
 		return nil, err
 	}
-
-	s.repo.UpdateAuthCode(ctx, code)
+	code.Used = true
+	code.UserID = user.UserID
+	err = s.repo.UpdateAuthCode(ctx, code)
+	if err != nil {
+		fmt.Println("ошибка обновления кода", err)
+	}
 	return session, nil
 }
 

@@ -3,7 +3,9 @@ package handlers
 import (
 	"auth-service/internal/models"
 	"auth-service/internal/services"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"time"
 
@@ -20,17 +22,22 @@ func NewAuthHandler(service *services.AuthService) *AuthHandler {
 }
 
 func (s *AuthHandler) CheckUserExists(ctx *gin.Context) {
-	emailOrPhone := ctx.Request.FormValue("email_or_phone")
-	exists, err := s.service.CheckUserExists(ctx, emailOrPhone)
+	emailOrPhone := ctx.Param("email_or_phone")
+	if emailOrPhone == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "email_or_phone is required"})
+		return
+	}
+	fmt.Println(emailOrPhone)
+	userID, err := s.service.CheckUserExists(ctx, emailOrPhone)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"exists": exists})
+	ctx.JSON(http.StatusOK, gin.H{"user_id": userID})
 }
 
 func (s *AuthHandler) GetUser(ctx *gin.Context) {
-	userID := ctx.Query("user_id")
+	userID := ctx.Param("user_id")
 	user, err := s.service.GetUserByID(ctx, userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -38,6 +45,7 @@ func (s *AuthHandler) GetUser(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"user": user})
 }
+
 func (s *AuthHandler) SendCode(ctx *gin.Context) {
 	var code models.AuthCode
 	err := ctx.ShouldBindJSON(&code)
@@ -46,19 +54,30 @@ func (s *AuthHandler) SendCode(ctx *gin.Context) {
 		return
 	}
 	code.ExpiresAt = time.Now().Add(time.Minute * 5)
-	err = s.service.SendCode(ctx, code.recipient, code)
+	err = s.service.SendCode(ctx, code.Recipient, &code)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	fmt.Println(code)
 	ctx.JSON(http.StatusOK, gin.H{"code": code})
 }
 
 func (s *AuthHandler) VerifyCode(ctx *gin.Context) {
-	recipient := ctx.Request.FormValue("recipient")
-	code := ctx.Request.FormValue("code")
+	var input struct {
+		Recipient string `json:"recipient"`
+		Code      string `json:"code"`
+	}
 
-	_, err := s.service.VerifyCode(ctx, recipient, code)
+	err := ctx.ShouldBindJSON(&input)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	recipient := input.Recipient
+	code := input.Code
+	_, err = s.service.VerifyCode(ctx, recipient, code)
+	fmt.Println(recipient, code)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -67,7 +86,7 @@ func (s *AuthHandler) VerifyCode(ctx *gin.Context) {
 }
 
 func (s *AuthHandler) GetUserSession(ctx *gin.Context) {
-	userID := ctx.Query("user_id")
+	userID := ctx.Param("user_id")
 	session, err := s.service.GetSessionByUserID(ctx, userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -117,11 +136,19 @@ func (s *AuthHandler) LogIn(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	userP, err := s.service.GetUserByID(ctx, user.UserID)
+	user = *userP
+	if err != nil {
+		fmt.Println("ошибка получения пользователя", err)
+	} else {
+		fmt.Println("user", user)
+	}
 	ctx.JSON(http.StatusOK, gin.H{"session": session, "user": user})
 }
 
 func (s *AuthHandler) LogOut(ctx *gin.Context) {
-	userID := ctx.Query("user_id")
+	userID := ctx.Param("user_id")
 	err := s.service.LogOut(ctx, userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -131,8 +158,10 @@ func (s *AuthHandler) LogOut(ctx *gin.Context) {
 }
 
 func (s *AuthHandler) CheckToken(ctx *gin.Context) {
-	token := ctx.Query("token")
-	user_id, err := s.tools.ValidateJWTToken(token)
+	tokenString := ctx.GetHeader("Authorization")
+	fmt.Println(tokenString)
+	tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
+	user_id, err := s.tools.ValidateJWTToken(tokenString)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

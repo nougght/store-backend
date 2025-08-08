@@ -3,15 +3,15 @@ package handlers
 import (
 	"auth-service/internal/models"
 	"auth-service/internal/services"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-
 type FavouriteItemsHandler struct {
 	service *services.FavouriteItemsService
-	tools   *models.Tools 
+	tools   *models.Tools
 }
 
 func NewFavouriteItemsHandler(service *services.FavouriteItemsService) *FavouriteItemsHandler {
@@ -31,7 +31,7 @@ func (h *FavouriteItemsHandler) AddToFavourites(c *gin.Context) {
 		return
 	}
 	item.UserID = userID
-	
+
 	if err := h.service.AddToFavourites(c.Request.Context(), &item); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add item to favourites" + err.Error()})
 		return
@@ -51,7 +51,7 @@ func (h *FavouriteItemsHandler) GetFavouritesByUserID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve favourites" + err.Error()})
 		return
 	}
-
+	fmt.Println(favourites)
 	c.JSON(http.StatusOK, favourites)
 }
 
