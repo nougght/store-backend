@@ -38,6 +38,7 @@ func main() {
 	r.POST("/auth/code/verify", reverseProxy(authServiceURL))
 
 	r.GET("/cart/:user_id", reverseProxy(cartServiceURL))
+	r.POST("/cart/:user_id", reverseProxy(cartServiceURL))
 	r.GET("/cart/items/:cart_id", reverseProxy(cartServiceURL))
 	r.POST("/cart/items", reverseProxy(cartServiceURL))
 	r.PATCH("/cart/items", reverseProxy(cartServiceURL))
