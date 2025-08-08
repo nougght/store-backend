@@ -7,7 +7,7 @@ import (
 
 type Cart struct {
     CartID    string    `db:"cart_id" json:"cart_id"`
-    UserID    int       `db:"user_id" json:"user_id"`
+    UserID    string       `db:"user_id" json:"user_id"`
     CreatedAt time.Time `db:"created_at" json:"created_at"`
     UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
     Status string    `db:"status" json:"status"` // e.g., active, abandoned, converted_to_order

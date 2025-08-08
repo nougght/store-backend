@@ -32,3 +32,19 @@ func (h *CartHandler) GetCart(c *gin.Context) {
 
 	c.JSON(http.StatusOK, cart)
 }
+
+func (h *CartHandler) CreateCart(c *gin.Context) {
+	userID := c.Param("user_id")
+	if !h.tools.IsValidUUID(userID) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID" + userID})
+		return
+	}
+
+	cart, err := h.service.CreateCart(c.Request.Context(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create cart" + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, cart)
+}

@@ -38,6 +38,7 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/cart/:user_id", cartHandler.GetCart)
+	router.POST("/cart/:user_id", cartHandler.CreateCart)
 
 	router.GET("/cart/items/:cart_id", cartItemsHandler.GetCartItemsByCartID)
 	router.POST("/cart/items", cartItemsHandler.AddToCart)
