@@ -46,5 +46,5 @@ func (h *CartHandler) CreateCart(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, cart)
+	c.JSON(http.StatusCreated, gin.H{"cart_id": cart})
 }

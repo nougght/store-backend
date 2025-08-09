@@ -27,6 +27,7 @@ func (r *CartRepository) GetCartByUserID(ctx context.Context, userID string) (*m
 
 func (r *CartRepository) CreateCart(ctx context.Context, userID string) (string, error) {
 	query := `INSERT INTO carts.carts (user_id) VALUES ($1) returning cart_id`
-	err := r.db.QueryRowxContext(ctx, query, userID).Scan(&userID);
-	return userID, err
+	var cartID string
+	err := r.db.QueryRowxContext(ctx, query, userID).Scan(&cartID)
+	return cartID, err
 }
