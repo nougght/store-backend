@@ -65,11 +65,6 @@ func (r *AuthRepository) CheckUserExists(ctx context.Context, emailOrPhone strin
 	return "", nil
 }
 
-func (r *AuthRepository) DeleteUserByID(ctx context.Context, userID string) error {
-	_, err := r.db.ExecContext(ctx, "DELETE FROM auth.users WHERE user_id = $1", userID)
-	return err
-}
-
 func (r *AuthRepository) CreateAuthCode(ctx context.Context, code *models.AuthCode) error {
 	err := r.db.QueryRowxContext(ctx, `
 		INSERT INTO auth.auth_codes (code, channel, expires_at, recipient)
