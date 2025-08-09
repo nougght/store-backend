@@ -157,6 +157,16 @@ func (s *AuthHandler) LogOut(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
 }
 
+func (s *AuthHandler) DeleteUserByID(ctx *gin.Context) {
+	userID := ctx.Param("user_id")
+	err := s.service.DeleteUserByID(ctx, userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error() + userID})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
+}
+
 func (s *AuthHandler) CheckToken(ctx *gin.Context) {
 	tokenString := ctx.GetHeader("Authorization")
 	fmt.Println(tokenString)

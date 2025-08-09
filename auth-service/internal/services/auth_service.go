@@ -26,6 +26,9 @@ func (s *AuthService) GetUserByID(ctx context.Context, userID string) (*models.U
 	return s.repo.GetUserByID(ctx, userID)
 }
 
+func (s *AuthService) DeleteUserByID(ctx context.Context, userID string) error {
+	return s.repo.DeleteUserByID(ctx, userID)
+}
 func (s *AuthService) SendCode(ctx context.Context, recipient string, code *models.AuthCode) error {
 	newCode := s.tools.GenerateAuthCode()
 	code.Code = newCode

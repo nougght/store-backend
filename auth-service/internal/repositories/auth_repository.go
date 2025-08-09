@@ -31,6 +31,12 @@ func (r *AuthRepository) GetUserByID(ctx context.Context, userID string) (*model
 	return &user, err
 }
 
+func (r *AuthRepository) DeleteUserByID(ctx context.Context, userID string) error {
+	query := `DELETE FROM auth.users WHERE user_id = $1`
+	_, err := r.db.ExecContext(ctx, query, userID)
+	return err
+}
+
 func (r *AuthRepository) GetUserByPhone(ctx context.Context, phone string) (*models.User, error) {
 	var user models.User
 	err := r.db.GetContext(ctx, &user, "SELECT * FROM auth.users WHERE phone = $1", phone)

@@ -39,6 +39,7 @@ func main() {
 
 	router.POST("/user/check/:email_or_phone", authHandler.CheckUserExists)
 	router.GET("/user/:user_id", authHandler.GetUser)
+	router.DELETE("/user/:user_id", authHandler.DeleteUserByID)
 	router.GET("/user/:user_id/session", authHandler.GetUserSession)
 	router.POST("/user/logout/:user_id", authHandler.LogOut)
 

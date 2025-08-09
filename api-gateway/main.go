@@ -29,6 +29,8 @@ func main() {
 
 	r.POST("/user/check/:email_or_phone", reverseProxy(authServiceURL))
 	r.GET("/user/:user_id", reverseProxy(authServiceURL))
+	r.DELETE("/user/:user_id", reverseProxy(authServiceURL)
+)
 	r.GET("/user/:user_id/session", reverseProxy(authServiceURL))
 	r.POST("/user/logout/:user_id", reverseProxy(authServiceURL))
 
