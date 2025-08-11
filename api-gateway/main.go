@@ -18,9 +18,10 @@ func main() {
 	r := gin.New()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*"}, // Или конкретный URL фронтенда
-		AllowMethods: []string{"GET", "POST", "DELETE", "PATCH"},
-		AllowHeaders: []string{"Content-Type"},
+		AllowOrigins:     []string{"*"}, // или "*" для всех
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
 	}))
 
 	r.RedirectTrailingSlash = false // Отключаем авторедиректы
@@ -53,14 +54,11 @@ func main() {
 	r.PUT("/products/:id", reverseProxy(productServiceURL))
 	r.DELETE("/products/:id", reverseProxy(productServiceURL))
 
-
 	// категории
 	r.GET("/categories", reverseProxy(categoriesServiceURL))
 	r.POST("/categories", reverseProxy(categoriesServiceURL))
 	r.PUT("/categories/:id", reverseProxy(categoriesServiceURL))
 	r.DELETE("/categories/:id", reverseProxy(categoriesServiceURL))
-
-	
 
 	r.GET("/user/:user_id/favourites", reverseProxy(authServiceURL))
 	r.POST("/user/:user_id/favourites", reverseProxy(authServiceURL))
