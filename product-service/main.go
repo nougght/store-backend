@@ -32,6 +32,9 @@ func main() {
 	// Define routes
 	router.GET("/products", productHandler.GetProducts)
 	router.GET("/products:ids", productHandler.GetProductsByIDs) // не работает
+	router.POST("/products", productHandler.CreateProduct)
+	router.PUT("/products/:id", productHandler.UpdateProduct)
+	router.DELETE("/products/:id", productHandler.DeleteProduct)
 
 	// Run server
 	router.Run("0.0.0.0:8081")

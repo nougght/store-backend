@@ -46,10 +46,22 @@ func main() {
 	r.DELETE("/cart/items", reverseProxy(cartServiceURL))
 	r.DELETE("/cart/items/:id", reverseProxy(cartServiceURL))
 
+	// товары
 	r.GET("/products", reverseProxy(productServiceURL))
 	r.GET("/products:ids", reverseProxy(productServiceURL))
+	r.POST("/products", reverseProxy(productServiceURL))
+	r.PUT("/products/:id", reverseProxy(productServiceURL))
+	r.DELETE("/products/:id", reverseProxy(productServiceURL))
+
+
+	// категории
 	r.GET("/categories", reverseProxy(categoriesServiceURL))
 	r.POST("/categories", reverseProxy(categoriesServiceURL))
+	r.PUT("/categories/:id", reverseProxy(categoriesServiceURL))
+	r.DELETE("/categories/:id", reverseProxy(categoriesServiceURL))
+
+	
+
 	r.GET("/user/:user_id/favourites", reverseProxy(authServiceURL))
 	r.POST("/user/:user_id/favourites", reverseProxy(authServiceURL))
 	r.DELETE("/user/:user_id/favourites/:product_id", reverseProxy(authServiceURL))

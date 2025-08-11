@@ -78,3 +78,50 @@ func (h *ProductsHandler) GetProductsByIDs(c *gin.Context) {
 
 	c.JSON(http.StatusOK, products)
 }
+
+func (h *ProductsHandler) CreateProduct(c *gin.Context) {
+	var product models.Product
+	if err := c.ShouldBindJSON(&product); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	
+	if err := h.service.CreateProduct(c.Request.Context(), product); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"status": "created", "id": product.ID})
+}
+
+func (h *ProductsHandler) UpdateProduct(c *gin.Context) {
+	id := c.Param("id")
+
+	if !h.tools.IsValidUUID(id) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+	var product models.Product
+	if err := c.ShouldBindJSON(&product); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.service.UpdateProduct(c.Request.Context(), id, product); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "updated"})
+}
+
+func (h *ProductsHandler) DeleteProduct(c *gin.Context) {
+	id := c.Param("id")
+
+	if err := h.service.DeleteProduct(c.Request.Context(), id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+}

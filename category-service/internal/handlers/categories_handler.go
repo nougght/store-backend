@@ -5,9 +5,9 @@ import (
 	"category-service/internal/services"
 	"net/http"
 
-	"encoding/base64"
+	// "encoding/base64"
 	"fmt"
-	"io"
+	// "io"
 	"os"
 	"image/png"
 	
@@ -30,11 +30,6 @@ func (h *CategoriesHandler) PostCategory(c *gin.Context) {
 	err := c.ShouldBindJSON(category)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input" + err.Error()})
-		return
-	}
-
-	if !h.tools.IsValidUUID(category.ID) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid item ID" + category.ID})
 		return
 	}
 
@@ -81,43 +76,75 @@ func (h *CategoriesHandler) GetCategories(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve categories" + err.Error()})
 		return
 	}
-	for i, category := range categories {
-		if category.Image != "" {
-			foundImage := false
-			fmt.Println(category.Image)
-			compressedPath := "compressed/" + category.Image
-			file, err := os.Open(compressedPath)
-			if err != nil {
-				fmt.Println("Ошибка открытия сжатого изображения", compressedPath) // если сжатого файла нет - сжимаем его
-				if !resizeAndSave("imgs/"+category.Image, compressedPath, 400) {
-					fmt.Println("Сжатие не удалось")
-				} else {
-					foundImage = true
-					fmt.Println("Сжатие удалось")
-				}
-			} else {
-				file.Close()
-				foundImage = true
-			}
-			if foundImage { // если нашли/создали сжатый файл - кодируем перед передачей
-				file, err = os.Open(compressedPath)
-				if err == nil {
-					imgData, err := io.ReadAll(file)
-					if err == nil {
-						file.Close()
-						categories[i].Image = base64.StdEncoding.EncodeToString(imgData)
-					} else {
-						fmt.Println("Ошибка при чтении данных изображения")
-					}
-				} else {
-					fmt.Println("Ошибка при открытии файла", compressedPath)
-				}
-				file.Close()
-			}
-		}
-	}
+	// for i, category := range categories {
+	// 	if category.Image != "" {
+	// 		foundImage := false
+	// 		fmt.Println(category.Image)
+	// 		compressedPath := "compressed/" + category.Image
+	// 		file, err := os.Open(compressedPath)
+	// 		if err != nil {
+	// 			fmt.Println("Ошибка открытия сжатого изображения", compressedPath) // если сжатого файла нет - сжимаем его
+	// 			if !resizeAndSave("imgs/"+category.Image, compressedPath, 400) {
+	// 				fmt.Println("Сжатие не удалось")
+	// 			} else {
+	// 				foundImage = true
+	// 				fmt.Println("Сжатие удалось")
+	// 			}
+	// 		} else {
+	// 			file.Close()
+	// 			foundImage = true
+	// 		}
+	// 		if foundImage { // если нашли/создали сжатый файл - кодируем перед передачей
+	// 			file, err = os.Open(compressedPath)
+	// 			if err == nil {
+	// 				imgData, err := io.ReadAll(file)
+	// 				if err == nil {
+	// 					file.Close()
+	// 					categories[i].Image = base64.StdEncoding.EncodeToString(imgData)
+	// 				} else {
+	// 					fmt.Println("Ошибка при чтении данных изображения")
+	// 				}
+	// 			} else {
+	// 				fmt.Println("Ошибка при открытии файла", compressedPath)
+	// 			}
+	// 			file.Close()
+	// 		}
+	// 	}
+	// }
 
 	c.IndentedJSON(http.StatusOK, categories)
 	// c.JSON(http.StatusOK, categories)
 
+}
+
+
+
+func (h *CategoriesHandler) UpdateCategory(c *gin.Context) {
+
+	var category models.Category
+	err := c.ShouldBindJSON(category)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		return
+	}
+	category.ID = c.Param("id")
+	if err := h.service.UpdateCategory(c.Request.Context(), category); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update category"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "updated"})
+}
+
+
+func (h *CategoriesHandler) DeleteCategory(c *gin.Context) {
+	id := c.Param("id")
+	if !h.tools.IsValidUUID(id) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+	if err := h.service.DeleteCategory(c.Request.Context(), id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete category"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
 }

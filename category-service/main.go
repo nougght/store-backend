@@ -32,6 +32,8 @@ func main() {
 	router := gin.Default()
 	router.GET("/categories", categoriesHandler.GetCategories)
 	router.POST("/categories", categoriesHandler.PostCategory)
+	router.PUT("/categories/:id", categoriesHandler.UpdateCategory)
+	router.DELETE("/categories/:id", categoriesHandler.DeleteCategory)
 	router.Run("0.0.0.0:8083")
 }
 
