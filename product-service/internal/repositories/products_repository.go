@@ -42,7 +42,7 @@ func (r *ProductsRepository) CreateProduct(ctx context.Context, product models.P
 	query := `INSERT INTO products.products (name, description, price, category_id, quantity, unit, stock, is_active)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	RETURNING id`
-	result, err := r.db.ExecContext(ctx, query,
+	err := r.db.QueryRowxContext(ctx, query,
 		product.Name,
 		product.Description,
 		product.Price,
@@ -52,15 +52,10 @@ func (r *ProductsRepository) CreateProduct(ctx context.Context, product models.P
 		product.Unit,
 		product.Stock,
 		product.IsActive,
-	)
+	).Scan(&product.ID)
 	if err != nil {
 		return err
 	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		return err
-	}
-	product.ID = fmt.Sprint(id)
 	fmt.Println("Product created: ", product.ID)
 	return err
 }
