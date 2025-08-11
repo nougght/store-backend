@@ -38,17 +38,16 @@ func (r *ProductsRepository) GetProductByIDs(ctx context.Context, ids []string) 
 	return products, nil
 }
 
-
 func (r *ProductsRepository) CreateProduct(ctx context.Context, product models.Product) error {
-	query := `INSERT INTO products.products (name, description, price, category_id, images, quantity, unit, stock, is_active)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	query := `INSERT INTO products.products (name, description, price, category_id, quantity, unit, stock, is_active)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	RETURNING id`
 	result, err := r.db.ExecContext(ctx, query,
 		product.Name,
 		product.Description,
 		product.Price,
 		product.CategoryId,
-		pq.Array(product.Images),
+		// pq.Array(product.Images),
 		product.Quantity,
 		product.Unit,
 		product.Stock,
@@ -66,7 +65,6 @@ func (r *ProductsRepository) CreateProduct(ctx context.Context, product models.P
 	return err
 }
 
-
 func (r *ProductsRepository) DeleteProduct(ctx context.Context, id string) error {
 	query := "DELETE FROM products.products WHERE id = $1"
 	_, err := r.db.ExecContext(ctx, query, id)
@@ -77,10 +75,9 @@ func (r *ProductsRepository) DeleteProduct(ctx context.Context, id string) error
 	return nil
 }
 
-
 func (r *ProductsRepository) UpdateProduct(ctx context.Context, id string, product models.Product) error {
 	query := `UPDATE products.products
-	SET name = $2, description = $3, price = $4, category_id = $5, images = $6, quantity = $7, unit = $8, stock = $9, is_active = $10
+	SET name = $2, description = $3, price = $4, category_id = $5,  quantity = $6, unit = $7, stock = $8, is_active = $9
 	WHERE id = $1`
 	_, err := r.db.ExecContext(ctx, query,
 		id,
@@ -88,7 +85,7 @@ func (r *ProductsRepository) UpdateProduct(ctx context.Context, id string, produ
 		product.Description,
 		product.Price,
 		product.CategoryId,
-		pq.Array(product.Images),
+		// pq.Array(product.Images),
 		product.Quantity,
 		product.Unit,
 		product.Stock,
