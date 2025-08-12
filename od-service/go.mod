@@ -1,4 +1,4 @@
-module product-service
+module od-service
 
 go 1.24.5
 

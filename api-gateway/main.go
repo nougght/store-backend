@@ -14,6 +14,7 @@ func main() {
 	cartServiceURL := "http://localhost:8082"
 	categoriesServiceURL := "http://localhost:8083"
 	authServiceURL := "http://localhost:8084"
+	odServiceURL := "http://localhost:8086"
 
 	r := gin.New()
 
@@ -63,6 +64,28 @@ func main() {
 	r.GET("/user/:user_id/favourites", reverseProxy(authServiceURL))
 	r.POST("/user/:user_id/favourites", reverseProxy(authServiceURL))
 	r.DELETE("/user/:user_id/favourites/:product_id", reverseProxy(authServiceURL))
+
+
+	// заказы
+	r.POST("/order", reverseProxy(odServiceURL))
+	r.GET("/order/:id", reverseProxy(odServiceURL))
+	r.GET("/users/:user_id/orders", reverseProxy(odServiceURL))
+	r.PUT("/order/:id", reverseProxy(odServiceURL))
+	r.DELETE("/order/:id", reverseProxy(odServiceURL))
+
+	// пункты заказа
+	r.POST("/order/items", reverseProxy(odServiceURL))
+	r.GET("/order/items/:id", reverseProxy(odServiceURL))
+	r.GET("/order/:order_id/items", reverseProxy(odServiceURL))
+	r.PUT("/order/items/:id", reverseProxy(odServiceURL))
+	r.DELETE("/order/items/:id", reverseProxy(odServiceURL))
+
+	// доставка
+	r.POST("/delivery", reverseProxy(odServiceURL))
+	r.GET("/delivery/:id", reverseProxy(odServiceURL))
+	r.GET("/order/:order_id/delivery", reverseProxy(odServiceURL))
+	r.PUT("/delivery/:id", reverseProxy(odServiceURL))
+	r.DELETE("/delivery/:id", reverseProxy(odServiceURL))
 
 	log.Println("API Gateway запущен на :8080")
 	r.Run(":8080")
