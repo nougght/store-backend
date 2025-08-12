@@ -76,14 +76,14 @@ func main() {
 	// пункты заказа
 	r.POST("/order/items", reverseProxy(odServiceURL))
 	r.GET("/order/items/:id", reverseProxy(odServiceURL))
-	r.GET("/order/:order_id/items", reverseProxy(odServiceURL))
+	r.GET("/order/:id/items", reverseProxy(odServiceURL))
 	r.PUT("/order/items/:id", reverseProxy(odServiceURL))
 	r.DELETE("/order/items/:id", reverseProxy(odServiceURL))
 
 	// доставка
 	r.POST("/delivery", reverseProxy(odServiceURL))
 	r.GET("/delivery/:id", reverseProxy(odServiceURL))
-	r.GET("/order/:order_id/delivery", reverseProxy(odServiceURL))
+	r.GET("/order/:id/delivery", reverseProxy(odServiceURL))
 	r.PUT("/delivery/:id", reverseProxy(odServiceURL))
 	r.DELETE("/delivery/:id", reverseProxy(odServiceURL))
 

@@ -35,14 +35,14 @@ func (h *DeliveryHandler) GetDeliveryByID(c *gin.Context) {
 }
 
 func (h *DeliveryHandler) GetDeliveryByOrderID(c *gin.Context) {
-	deliveryID := c.Param("delivery_id")
+	orderID := c.Param("id")
 
-	if !h.tools.IsValidUUID(deliveryID) {
+	if !h.tools.IsValidUUID(orderID) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
 		return
 	}
 
-	delivery, err := h.service.GetDeliveryByOrderID(c.Request.Context(), deliveryID)
+	delivery, err := h.service.GetDeliveryByOrderID(c.Request.Context(), orderID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

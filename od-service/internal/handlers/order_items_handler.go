@@ -33,7 +33,7 @@ func (h *OrderItemsHandler) CreateOrderItem(c *gin.Context) {
 }
 
 func (h *OrderItemsHandler) GetOrderItemsByOrderID(c *gin.Context) {
-	orderID := c.Param("order_id")
+	orderID := c.Param("id")
 	if !h.tools.IsValidUUID(orderID) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid order ID" + orderID})
 		return

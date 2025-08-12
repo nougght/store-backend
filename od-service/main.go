@@ -50,14 +50,14 @@ func main() {
 	// пункты заказа
 	router.POST("/order/items", orderItemsHandler.CreateOrderItem)
 	router.GET("/order/items/:id", orderItemsHandler.GetOrderItemByID)
-	router.GET("/order/:order_id/items", orderItemsHandler.GetOrderItemsByOrderID)
+	router.GET("/order/:id/items", orderItemsHandler.GetOrderItemsByOrderID)
 	router.PUT("/order/items/:id", orderItemsHandler.UpdateOrderItem)
 	router.DELETE("/order/items/:id", orderItemsHandler.DeleteOrderItem)
 
 	// доставка
 	router.POST("/delivery", deliveryHandler.CreateDelivery)
 	router.GET("/delivery/:id", deliveryHandler.GetDeliveryByID)
-	router.GET("/order/:order_id/delivery", deliveryHandler.GetDeliveryByOrderID)
+	router.GET("/order/:id/delivery", deliveryHandler.GetDeliveryByOrderID)
 	router.PUT("/delivery/:id", deliveryHandler.UpdateDelivery)
 	router.DELETE("/delivery/:id", deliveryHandler.DeleteDelivery)
 
