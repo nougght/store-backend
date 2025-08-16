@@ -39,7 +39,7 @@ func (h *OrderItemsHandler) CreateOrderItems(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.CreateOrderItems(c.Request.Context(), &input); err != nil {
+	if err := h.service.CreateOrderItems(c.Request.Context(), input); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create order items" + err.Error()})
 		return
 	}
