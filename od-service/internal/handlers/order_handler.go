@@ -45,13 +45,13 @@ func (h *OrderHandler) GetOrdersByUserID(c *gin.Context) {
 
 	orders, err := h.service.GetOrdersByUserID(c.Request.Context(), userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error1": err.Error()})
 		return
 	}
 	for _, order := range orders {
 		orderItems, err := h.itemSerive.GetOrderItemsByOrderID(c.Request.Context(), order.ID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error2": err.Error()})
 			return
 		}
 		order.Items = orderItems
