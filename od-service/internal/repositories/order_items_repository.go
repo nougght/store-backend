@@ -22,17 +22,29 @@ func (r *OrderItemsRepository) CreateOrderItem(ctx context.Context, orderItem mo
 }
 
 func (r *OrderItemsRepository) CreateOrderItems(ctx context.Context, items []models.OrderItem) error {
-	query := `INSERT INTO OD.order_items (order_id, product_id, quantity, price, weight) VALUES `
-	values := make([]interface{}, 0, len(items)*5)
-	for i, item := range items {
-		if i > 0 {
-			query += ", "
+	query := `
+        INSERT INTO OD.order_items 
+        (order_id, product_id, quantity, price, weight)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id
+    `
+
+	for i := range items {
+		err := r.db.QueryRowContext(
+			ctx,
+			query,
+			items[i].OrderID,
+			items[i].ProductID,
+			items[i].Quantity,
+			items[i].Price,
+			items[i].Weight,
+		).Scan(&items[i].ID)
+
+		if err != nil {
+			return err
 		}
-		query += "(?, ?, ?, ?, ?)"
-		values = append(values, item.OrderID, item.ProductID, item.Quantity, item.Price, item.Weight)
 	}
-	query += " returning id"
-	return r.db.QueryRowxContext(ctx, query, values...).Scan(&items[0].ID)
+	return nil
 }
 
 func (r *OrderItemsRepository) GetOrderItemByID(ctx context.Context, id string) (*models.OrderItem, error) {
