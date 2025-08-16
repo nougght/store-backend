@@ -38,12 +38,12 @@ func (r *OrderRepository) GetActiveOrdersByUserID(ctx context.Context, userID st
 }
 func (r *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) (string, error) {
 	query := `INSERT INTO OD.orders (user_id, status, total_price, delivery_price, payment_method, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
-	var orderID string
-	err := r.db.QueryRowxContext(ctx, query, order.UserID, order.Status, order.TotalPrice, order.DeliveryPrice, order.PaymentMethod, order.CreatedAt, order.UpdatedAt).Scan(&orderID)
+	// var orderID string
+	err := r.db.QueryRowxContext(ctx, query, order.UserID, order.Status, order.TotalPrice, order.DeliveryPrice, order.PaymentMethod, order.CreatedAt, order.UpdatedAt).Scan(&order.userID)
 	if err != nil {
 		return "", err
 	}
-	return orderID, nil
+	return order.ID, nil
 }
 
 func (r *OrderRepository) GetOrderByID(ctx context.Context, orderID string) (*models.Order, error) {
