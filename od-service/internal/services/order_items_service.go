@@ -1,9 +1,9 @@
 package services
 
 import (
+	"context"
 	"od-service/internal/models"
 	"od-service/internal/repositories"
-	"context"
 )
 
 type OrderItemsService struct {
@@ -18,10 +18,14 @@ func (s *OrderItemsService) CreateOrderItem(ctx context.Context, item *models.Or
 	return s.repo.CreateOrderItem(ctx, *item)
 }
 
+func (s *OrderItemsService) CreateOrderItems(ctx context.Context, items []models.OrderItem) error {
+	return s.repo.CreateOrderItems(ctx, items)
+}
 
 func (s *OrderItemsService) GetOrderItemByID(ctx context.Context, id string) (*models.OrderItem, error) {
 	return s.repo.GetOrderItemByID(ctx, id)
 }
+
 func (s *OrderItemsService) GetOrderItemsByOrderID(ctx context.Context, id string) ([]models.OrderItem, error) {
 	return s.repo.GetOrderItemsByOrderID(ctx, id)
 }

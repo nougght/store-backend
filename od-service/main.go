@@ -49,6 +49,7 @@ func main() {
 
 	// пункты заказа
 	router.POST("/order/items", orderItemsHandler.CreateOrderItem)
+	router.POST("/order/:id/items", orderItemsHandler.CreateOrderItems)
 	router.GET("/order/items/:id", orderItemsHandler.GetOrderItemByID)
 	router.GET("/order/:id/items", orderItemsHandler.GetOrderItemsByOrderID)
 	router.PUT("/order/items/:id", orderItemsHandler.UpdateOrderItem)

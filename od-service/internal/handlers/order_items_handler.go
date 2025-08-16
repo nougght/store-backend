@@ -32,6 +32,21 @@ func (h *OrderItemsHandler) CreateOrderItem(c *gin.Context) {
 	c.JSON(http.StatusCreated, input)
 }
 
+func (h *OrderItemsHandler) CreateOrderItems(c *gin.Context) {
+	var input []models.OrderItem
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input" + err.Error()})
+		return
+	}
+
+	if err := h.service.CreateOrderItems(c.Request.Context(), &input); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create order items" + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, input)
+}
+
 func (h *OrderItemsHandler) GetOrderItemsByOrderID(c *gin.Context) {
 	orderID := c.Param("id")
 	if !h.tools.IsValidUUID(orderID) {
