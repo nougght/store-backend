@@ -33,3 +33,7 @@ func (s *ProductsService) UpdateProduct(ctx context.Context, id string, product 
 func (s *ProductsService) DeleteProduct(ctx context.Context, id string) error {
 	return s.repo.DeleteProduct(ctx, id)
 }
+
+func (s *ProductsService) GetProductPage(ctx context.Context, page int, limit int, sort []string, category string) ([]models.Product, error) {
+	return s.repo.GetProductPage(ctx, page, limit, sort)
+}

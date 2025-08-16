@@ -9,8 +9,9 @@ import (
 )
 
 type OrderHandler struct {
-	service *services.OrderService
-	tools   *models.Tools
+	service    *services.OrderService
+	itemSerive *services.OrderItemsService
+	tools      *models.Tools
 }
 
 func NewOrderHandler(service *services.OrderService) *OrderHandler {
@@ -47,7 +48,14 @@ func (h *OrderHandler) GetOrdersByUserID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
+	for _, order := range orders {
+		orderItems, err := h.itemSerive.GetOrderItemsByOrderID(c.Request.Context(), order.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		order.OrderItems = orderItems
+	}
 	c.JSON(http.StatusOK, orders)
 }
 

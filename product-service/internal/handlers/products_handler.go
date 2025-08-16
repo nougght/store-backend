@@ -85,7 +85,7 @@ func (h *ProductsHandler) CreateProduct(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	if err := h.service.CreateProduct(c.Request.Context(), product); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -124,4 +124,25 @@ func (h *ProductsHandler) DeleteProduct(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+}
+
+func (h *ProductsHandler) GetProductsPage(c *gin.Context) {
+	page := c.Query("page")
+	limit := c.Query("limit")
+	filters := c.Query("filters")
+	sort := filters["sort"]
+	sort = sort.Split("_")
+	category := filters["category"]
+	if page == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "page parameter is required"})
+		return
+	}
+
+	products, err := h.service.GetProductsPage(c.Request.Context(), page, limit, sort, category)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, products)
 }

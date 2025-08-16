@@ -92,3 +92,17 @@ func (r *ProductsRepository) UpdateProduct(ctx context.Context, id string, produ
 	fmt.Println("Product updated: ", id)
 	return nil
 }
+
+func (r *ProductsRepository) GetProductPage(ctx context.Context, page int, limit int, sort []string, category string) ([]models.Product, error) {
+	var products []models.Product
+	column := sort[0]
+	order := sort[1]
+
+	query := `SELECT * FROM products.products WHERE category_id = $3 ORDER BY ` + column + ` ` + order + ` LIMIT $1 OFFSET $2`
+	offset := (page - 1) * limit
+	if err := r.db.Select(&products, query, limit, offset, category); err != nil {
+		return nil, err
+	}
+	fmt.Println("Products found on page: ", page, " with limit: ", limit)
+	return products, nil
+}
