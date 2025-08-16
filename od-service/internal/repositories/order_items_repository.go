@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"od-service/internal/models"
 
 	"github.com/jmoiron/sqlx"
@@ -39,7 +40,7 @@ func (r *OrderItemsRepository) CreateOrderItems(ctx context.Context, items []mod
 			items[i].Price,
 			items[i].Weight,
 		).Scan(&items[i].ID)
-
+		fmt.Println(items[i].ID, items[i].OrderID, items[i].ProductID, items[i].Quantity, items[i].Price, items[i].Weight)
 		if err != nil {
 			return err
 		}
