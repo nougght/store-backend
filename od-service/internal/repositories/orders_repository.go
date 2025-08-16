@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"od-service/internal/models"
 
 	"github.com/jmoiron/sqlx"
@@ -20,6 +21,7 @@ func (r *OrderRepository) GetOrdersByUserID(ctx context.Context, userID string) 
 	query := `SELECT * FROM OD.orders WHERE user_id = $1`
 	err := r.db.SelectContext(ctx, &orders, query, userID)
 	if err != nil {
+		fmt.Println("Error fetching orders by user ID:", userID)
 		return nil, err
 	}
 	return orders, nil
