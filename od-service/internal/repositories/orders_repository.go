@@ -1,4 +1,4 @@
-package repositories
+вpackage repositories
 
 import (
 	"context"

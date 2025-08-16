@@ -7,14 +7,16 @@ import (
 )
 
 type Order struct {
-	ID            string    `db:"id" json:"id"`
-	UserID        string    `db:"user_id" json:"user_id"`
-	Status        string    `db:"status" json:"status"`
-	TotalPrice    float64   `db:"total_price" json:"total_price"`
-	DeliveryPrice float64   `db:"delivery_price" json:"delivery_price"`
-	PaymentMethod string    `db:"payment_method" json:"payment_method"`
-	CreatedAt     time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt     time.Time `db:"updated_at" json:"updated_at"`
+	ID            string      `db:"id" json:"id"`
+	UserID        string      `db:"user_id" json:"user_id"`
+	Status        string      `db:"status" json:"status"`
+	TotalPrice    float64     `db:"total_price" json:"total_price"`
+	DeliveryPrice float64     `db:"delivery_price" json:"delivery_price"`
+	PaymentMethod string      `db:"payment_method" json:"payment_method"`
+	CreatedAt     time.Time   `db:"created_at" json:"created_at"`
+	UpdatedAt     time.Time   `db:"updated_at" json:"updated_at"`
+	Items         []OrderItem `db:"items" json:"items"`
+	Delivery      *Delivery   `db:"delivery" json:"delivery"`
 }
 
 type OrderItem struct {

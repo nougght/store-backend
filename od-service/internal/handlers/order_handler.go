@@ -54,7 +54,7 @@ func (h *OrderHandler) GetOrdersByUserID(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		order.items = orderItems
+		order.Items = orderItems
 	}
 	c.JSON(http.StatusOK, orders)
 }
