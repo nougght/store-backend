@@ -51,6 +51,7 @@ func (r *OrderRepository) GetAllOrders(ctx context.Context, status string) ([]mo
 	default:
 		query += `''`
 	}
+	fmt.Println("Query:", query)
 	err := r.db.SelectContext(ctx, &orders, query)
 	if err != nil {
 		return nil, err
