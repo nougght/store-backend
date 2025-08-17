@@ -42,11 +42,11 @@ func (r *OrderRepository) GetAllOrders(ctx context.Context, status string) ([]mo
 	query := `SELECT * FROM OD.orders WHERE status = `
 	switch status {
 	case "active":
-		query += `'transit' OR status = 'delivered''`
+		query += `'transit' OR status = 'delivered'`
 	case "new":
 		query += `'pending'`
 	case "completed":
-		query += `'canceled or status = 'completed'`
+		query += `'canceled' or status = 'completed'`
 
 	default:
 		query += `''`
