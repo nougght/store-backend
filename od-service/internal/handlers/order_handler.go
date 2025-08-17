@@ -50,21 +50,21 @@ func (h *OrderHandler) GetOrdersByUserID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error1": err.Error()})
 		return
 	}
-	for _, order := range orders {
+	for i, order := range orders {
 		orderItems, err := h.itemService.GetOrderItemsByOrderID(c.Request.Context(), order.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error2": err.Error()})
 			return
 		}
 		fmt.Println("orderItems", orderItems)
-		order.Items = orderItems
+		orders[i].Items = orderItems
 		delivery, err := h.deliveryService.GetDeliveryByOrderID(c.Request.Context(), order.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error3": err.Error()})
 			return
 		}
 		fmt.Println("delivery", delivery)
-		order.Delivery = delivery
+		orders[i].Delivery = delivery
 	}
 	fmt.Println("orders", orders)
 	c.JSON(http.StatusOK, orders)
