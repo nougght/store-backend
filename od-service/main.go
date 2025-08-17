@@ -43,6 +43,7 @@ func main() {
 	router.POST("/order", orderHandler.CreateOrder)
 	router.GET("/order/:id", orderHandler.GetOrderByID)
 	router.GET("users/:user_id/orders", orderHandler.GetOrdersByUserID)
+	router.GET("/orders", orderHandler.GetAllOrders)
 	router.PUT("/order/:id", orderHandler.UpdateOrder)
 	router.DELETE("/order/:id", orderHandler.DeleteOrder)
 

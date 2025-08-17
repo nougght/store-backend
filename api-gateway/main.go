@@ -67,6 +67,7 @@ func main() {
 
 	// заказы
 	r.POST("/order", reverseProxy(odServiceURL))
+	r.GET("/orders", reverseProxy(odServiceURL))
 	r.GET("/order/:id", reverseProxy(odServiceURL))
 	r.GET("/users/:user_id/orders", reverseProxy(odServiceURL))
 	r.PUT("/order/:id", reverseProxy(odServiceURL))

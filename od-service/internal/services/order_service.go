@@ -28,6 +28,10 @@ func (s *OrderService) GetActiveOrdersByUserID(ctx context.Context, userID strin
 	return s.repo.GetActiveOrdersByUserID(ctx, userID)
 }
 
+func (s *OrderService) GetAllOrders(ctx context.Context, status string) ([]models.Order, error) {
+	return s.repo.GetAllOrders(ctx, status);
+}
+
 func (s *OrderService) GetOrderByID(ctx context.Context, orderID string) (*models.Order, error) {
 	return s.repo.GetOrderByID(ctx, orderID)
 }

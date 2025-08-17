@@ -36,6 +36,27 @@ func (r *OrderRepository) GetActiveOrdersByUserID(ctx context.Context, userID st
 	}
 	return orders, nil
 }
+
+func (r *OrderRepository) GetAllOrders(ctx context.Context, status string) ([]models.Order, error) {
+	var orders []models.Order
+	query := `SELECT * FROM OD.orders WHERE status = `
+	switch status {
+	case "active":
+		query += `'transit' OR status = 'delivered''`
+	case "new":
+		query += `'pending'`
+	case "completed":
+		query += `'canceled or status = 'completed'`
+
+	default:
+		query += `''`
+	}
+	err := r.db.SelectContext(ctx, &orders, query)
+	if err != nil {
+		return nil, err
+	}
+	return orders, nil
+}
 func (r *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) (string, error) {
 	query := `INSERT INTO OD.orders (user_id, status, total_price, delivery_price, payment_method, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 	// var orderID string

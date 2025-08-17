@@ -87,6 +87,33 @@ func (h *OrderHandler) GetActiveOrdersByUserID(c *gin.Context) {
 	c.JSON(http.StatusOK, orders)
 }
 
+func (h *OrderHandler) GetAllOrders(c *gin.Context) {
+	status := c.Query("status")
+	orders, err := h.service.GetAllOrders(c.Request.Context(), status)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	for i, order := range orders {
+		orderItems, err := h.itemService.GetOrderItemsByOrderID(c.Request.Context(), order.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		fmt.Println("orderItems", orderItems)
+		orders[i].Items = orderItems
+		delivery, err := h.deliveryService.GetDeliveryByOrderID(c.Request.Context(), order.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		fmt.Println("delivery", delivery)
+		orders[i].Delivery = delivery
+	}
+
+	c.JSON(http.StatusOK, orders)
+}
 func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	var order models.Order
 	if err := c.ShouldBindJSON(&order); err != nil {
