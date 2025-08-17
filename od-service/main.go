@@ -25,11 +25,6 @@ func main() {
 	}
 	defer db.Close()
 
-	// Инициализация слоев приложения
-	orderRepository := repositories.NewOrderRepository(db)
-	orderService := services.NewOrderService(orderRepository)
-	orderHandler := handlers.NewOrderHandler(orderService)
-
 	orderItemsRepository := repositories.NewOrderItemsRepository(db)
 	orderItemsService := services.NewOrderItemsService(orderItemsRepository)
 	orderItemsHandler := handlers.NewOrderItemsHandler(orderItemsService)
@@ -37,6 +32,10 @@ func main() {
 	deliveryRepository := repositories.NewDeliveryRepository(db)
 	deliveryService := services.NewDeliveryService(deliveryRepository)
 	deliveryHandler := handlers.NewDeliveryHandler(deliveryService)
+	// Инициализация слоев приложения
+	orderRepository := repositories.NewOrderRepository(db)
+	orderService := services.NewOrderService(orderRepository)
+	orderHandler := handlers.NewOrderHandler(orderService, orderItemsService, deliveryService)
 
 	router := gin.Default()
 

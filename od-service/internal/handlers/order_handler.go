@@ -9,13 +9,14 @@ import (
 )
 
 type OrderHandler struct {
-	service    *services.OrderService
-	itemSerive *services.OrderItemsService
-	tools      *models.Tools
+	service         *services.OrderService
+	itemService     *services.OrderItemsService
+	deliveryService *services.DeliveryService
+	tools           *models.Tools
 }
 
-func NewOrderHandler(service *services.OrderService) *OrderHandler {
-	return &OrderHandler{service: service, tools: &models.Tools{}}
+func NewOrderHandler(service *services.OrderService, itemService *services.OrderItemsService, deliveryService *services.DeliveryService) *OrderHandler {
+	return &OrderHandler{service: service, itemService: itemService, deliveryService: deliveryService, tools: &models.Tools{}}
 }
 
 func (h *OrderHandler) GetOrderByID(c *gin.Context) {
@@ -49,13 +50,20 @@ func (h *OrderHandler) GetOrdersByUserID(c *gin.Context) {
 		return
 	}
 	for _, order := range orders {
-		orderItems, err := h.itemSerive.GetOrderItemsByOrderID(c.Request.Context(), order.ID)
+		orderItems, err := h.itemService.GetOrderItemsByOrderID(c.Request.Context(), order.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error2": err.Error()})
 			return
 		}
 		order.Items = orderItems
+		delivery, err := h.deliveryService.GetDeliveryByOrderID(c.Request.Context(), order.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error3": err.Error()})
+			return
+		}
+		order.Delivery = delivery
 	}
+
 	c.JSON(http.StatusOK, orders)
 }
 
