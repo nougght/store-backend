@@ -56,12 +56,14 @@ func (h *OrderHandler) GetOrdersByUserID(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error2": err.Error()})
 			return
 		}
+		fmt.Println("orderItems", orderItems)
 		order.Items = orderItems
 		delivery, err := h.deliveryService.GetDeliveryByOrderID(c.Request.Context(), order.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error3": err.Error()})
 			return
 		}
+		fmt.Println("delivery", delivery)
 		order.Delivery = delivery
 	}
 	fmt.Println("orders", orders)
