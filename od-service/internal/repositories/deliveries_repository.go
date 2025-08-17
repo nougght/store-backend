@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"od-service/internal/models"
 
 	"github.com/jmoiron/sqlx"
@@ -30,6 +31,7 @@ func (r *DeliveryRepository) GetDeliveryByOrderID(ctx context.Context, orderID s
 	query := `SELECT * FROM OD.deliveries WHERE order_id = $1`
 	err := r.db.GetContext(ctx, &delivery, query, orderID)
 	if err != nil {
+		fmt.Println("Error fetching delivery by order ID:", orderID)
 		return nil, err
 	}
 	return &delivery, nil

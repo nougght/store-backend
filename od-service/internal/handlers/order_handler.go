@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"od-service/internal/models"
 	"od-service/internal/services"
@@ -63,7 +64,7 @@ func (h *OrderHandler) GetOrdersByUserID(c *gin.Context) {
 		}
 		order.Delivery = delivery
 	}
-
+	fmt.Println("orders", orders)
 	c.JSON(http.StatusOK, orders)
 }
 
