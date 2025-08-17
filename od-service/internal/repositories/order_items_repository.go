@@ -65,6 +65,7 @@ func (r *OrderItemsRepository) GetOrderItemsByOrderID(ctx context.Context, order
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("order_id", order_id, "orderItems", orderItems)
 	return orderItems, nil
 }
 
