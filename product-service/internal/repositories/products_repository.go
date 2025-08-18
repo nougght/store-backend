@@ -102,11 +102,11 @@ func (r *ProductsRepository) GetProductsPage(ctx context.Context, page string, l
 		column = sort[0]
 		order = sort[1]
 	}
-	sortQuery := "ORDER BY " + column + " " + order
+	sortQuery := " ORDER BY " + column + " " + order
 	categoryQuery := ""
 
 	if category != "" {
-		categoryQuery = "WHERE category_id = $3 "
+		categoryQuery = "WHERE category_id = $3"
 	}
 
 	query := `SELECT * FROM products.products ` + categoryQuery + sortQuery + ` LIMIT $1 OFFSET $2`
