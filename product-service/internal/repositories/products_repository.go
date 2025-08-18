@@ -99,17 +99,17 @@ func (r *ProductsRepository) GetProductsPage(ctx context.Context, page string, l
 	var products []models.Product
 	var column, order string
 	if len(sort) == 2 {
-		column := sort[0]
-		order := sort[1]
+		column = sort[0]
+		order = sort[1]
 	}
 	sortQuery := "ORDER BY " + column + " " + order
-	if category == "" {
-		categoryQuery := ""
-	} else {
-		categoryQuery := "WHERE category_id = $3"
+	categoryQuery := ""
+
+	if category != "" {
+		categoryQuery = "WHERE category_id = $3 "
 	}
 
-	query := `SELECT * FROM products.products WHERE category_id = $3 ` + sortQuery + ` LIMIT $1 OFFSET $2`
+	query := `SELECT * FROM products.products ` + categoryQuery + sortQuery + ` LIMIT $1 OFFSET $2`
 	p, err := strconv.Atoi(page)
 	limit, err := strconv.Atoi(limitString)
 	if err != nil {
