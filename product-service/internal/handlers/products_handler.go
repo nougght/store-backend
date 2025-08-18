@@ -23,14 +23,32 @@ func (h *ProductsHandler) GetProducts(c *gin.Context) {
 	fmt.Println("GetProducts")
 	idsParam := c.Query("ids")
 	fmt.Println("idsParam: ", idsParam)
+	var products []models.Product
+	var err error
 	if idsParam == "" {
-		products, err := h.service.GetProducts(c.Request.Context())
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
-			return
+		page := c.Query("page")
+		if page == "" {
+			products, err = h.service.GetProducts(c.Request.Context())
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
+				return
+			}
+		} else {
+
+			limit := c.Query("limit")
+			filters := c.Query("filters")
+			sort := filters["sort"]
+			sort = sort.Split("_")
+			category := filters["category"]
+
+			products, err = h.service.GetProductsPage(c.Request.Context(), page, limit, sort, category)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
+				return
+			}
+
 		}
 
-		c.JSON(http.StatusOK, products)
 	} else {
 		ids := strings.Split(idsParam, ",")
 
@@ -41,14 +59,14 @@ func (h *ProductsHandler) GetProducts(c *gin.Context) {
 			}
 		}
 
-		products, err := h.service.GetProductByIDs(c.Request.Context(), ids)
+		products, err = h.service.GetProductByIDs(c.Request.Context(), ids)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, products)
 	}
+	c.JSON(http.StatusOK, products)
 }
 
 func (h *ProductsHandler) GetProductsByIDs(c *gin.Context) {
@@ -126,23 +144,23 @@ func (h *ProductsHandler) DeleteProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
 }
 
-func (h *ProductsHandler) GetProductsPage(c *gin.Context) {
-	page := c.Query("page")
-	limit := c.Query("limit")
-	filters := c.Query("filters")
-	sort := filters["sort"]
-	sort = sort.Split("_")
-	category := filters["category"]
-	if page == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "page parameter is required"})
-		return
-	}
+// func (h *ProductsHandler) GetProductsPage(c *gin.Context) {
+// 	page := c.Query("page")
+// 	limit := c.Query("limit")
+// 	filters := c.Query("filters")
+// 	sort := filters["sort"]
+// 	sort = sort.Split("_")
+// 	category := filters["category"]
+// 	if page == "" {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "page parameter is required"})
+// 		return
+// 	}
 
-	products, err := h.service.GetProductsPage(c.Request.Context(), page, limit, sort, category)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
-		return
-	}
+// 	products, err := h.service.GetProductsPage(c.Request.Context(), page, limit, sort, category)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
+// 		return
+// 	}
 
-	c.JSON(http.StatusOK, products)
-}
+// 	c.JSON(http.StatusOK, products)
+// }

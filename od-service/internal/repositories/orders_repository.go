@@ -29,7 +29,7 @@ func (r *OrderRepository) GetOrdersByUserID(ctx context.Context, userID string) 
 
 func (r *OrderRepository) GetActiveOrdersByUserID(ctx context.Context, userID string) ([]models.Order, error) {
 	var orders []models.Order
-	query := `SELECT * FROM OD.orders WHERE user_id = $1 AND status != 'canceled' AND status != 'completed'`
+	query := `SELECT * FROM OD.orders WHERE user_id = $1 AND status != 'cancelled' AND status != 'completed'`
 	err := r.db.SelectContext(ctx, &orders, query, userID)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (r *OrderRepository) GetAllOrders(ctx context.Context, status string) ([]mo
 	case "new":
 		query += `'pending'`
 	case "completed":
-		query += `'canceled' or status = 'completed'`
+		query += `'cancelled' or status = 'completed'`
 
 	default:
 		query += `''`

@@ -18,6 +18,10 @@ func (s *ProductsService) GetProducts(ctx context.Context) ([]models.Product, er
 	return s.repo.GetProducts(ctx)
 }
 
+func (s *ProductsService) GetProductPage(ctx context.Context, page int, limit int, category string, sort []string) ([]models.Product, error) {
+	return s.repo.GetProductPage(ctx, page, limit, sort, category)
+}
+
 func (s *ProductsService) GetProductByIDs(ctx context.Context, ids []string) ([]models.Product, error) {
 	return s.repo.GetProductByIDs(ctx, ids)
 }
