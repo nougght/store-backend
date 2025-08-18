@@ -116,6 +116,7 @@ func (r *ProductsRepository) GetProductsPage(ctx context.Context, page string, l
 		return nil, err
 	}
 	offset := (p - 1) * limit
+	fmt.Println("Query: ", query)
 	fmt.Println("Page: ", page, " Limit: ", limit, " Offset: ", offset, " Category: ", category)
 	if err := r.db.Select(&products, query, limit, offset, category); err != nil {
 		return nil, err
