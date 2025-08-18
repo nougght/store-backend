@@ -98,11 +98,14 @@ func (r *ProductsRepository) UpdateProduct(ctx context.Context, id string, produ
 func (r *ProductsRepository) GetProductsPage(ctx context.Context, page string, limitString string, sort []string, category string) ([]models.Product, error) {
 	var products []models.Product
 	var column, order string
+	var sortQuery string
 	if len(sort) == 2 {
 		column = sort[0]
 		order = sort[1]
+		sortQuery = " ORDER BY " + column + " " + order
+	} else {
+		sortQuery = ""
 	}
-	sortQuery := " ORDER BY " + column + " " + order
 	categoryQuery := ""
 
 	if category != "" {
