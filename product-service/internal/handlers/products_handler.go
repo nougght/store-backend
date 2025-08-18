@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	js "encoding/json"
 )
 
 type ProductsHandler struct {
@@ -34,14 +36,14 @@ func (h *ProductsHandler) GetProducts(c *gin.Context) {
 				return
 			}
 		} else {
-
+			page := c.Query("page")
 			limit := c.Query("limit")
-			filters := c.Query("filters")
-			sort := filters["sort"]
-			sort = sort.Split("_")
+			var filters map[string]string
+			js.NewDecoder(c.Request.Body).Decode(&filters)
+			sort := strings.Split(filters["sort"], "_")
 			category := filters["category"]
 
-			products, err = h.service.GetProductsPage(c.Request.Context(), page, limit, sort, category)
+			products, err = h.service.GetProductsPage(c.Request.Context(), page, limit, category, sort)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve products" + err.Error()})
 				return

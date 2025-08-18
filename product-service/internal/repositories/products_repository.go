@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"product-service/internal/models"
 
+	"strconv"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
@@ -93,13 +95,18 @@ func (r *ProductsRepository) UpdateProduct(ctx context.Context, id string, produ
 	return nil
 }
 
-func (r *ProductsRepository) GetProductPage(ctx context.Context, page int, limit int, sort []string, category string) ([]models.Product, error) {
+func (r *ProductsRepository) GetProductsPage(ctx context.Context, page string, limitString string, sort []string, category string) ([]models.Product, error) {
 	var products []models.Product
 	column := sort[0]
 	order := sort[1]
 
 	query := `SELECT * FROM products.products WHERE category_id = $3 ORDER BY ` + column + ` ` + order + ` LIMIT $1 OFFSET $2`
-	offset := (page - 1) * limit
+	p, err := strconv.Atoi(page)
+	limit, err := strconv.Atoi(limitString)
+	if err != nil {
+		return nil, err
+	}
+	offset := (p - 1) * limit
 	if err := r.db.Select(&products, query, limit, offset, category); err != nil {
 		return nil, err
 	}
