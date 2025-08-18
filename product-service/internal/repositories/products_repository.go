@@ -101,6 +101,9 @@ func (r *ProductsRepository) GetProductsPage(ctx context.Context, page string, l
 	var sortQuery string
 	if len(sort) == 2 {
 		column = sort[0]
+		if column == "created" {
+			column = "created_at"
+		}
 		order = sort[1]
 		sortQuery = " ORDER BY " + column + " " + order
 	} else {
