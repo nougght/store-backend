@@ -39,7 +39,7 @@ func (h *ProductsHandler) GetProducts(c *gin.Context) {
 			page := c.Query("page")
 			limit := c.Query("limit")
 			var filters map[string]string
-			js.Unmarshal([]byte(c.Query("filters"))).Decode(&filters)
+			js.Unmarshal([]byte(c.Query("filters")), &filters)
 			sort := strings.Split(filters["sort"], "_")
 			category := filters["category"]
 
