@@ -97,10 +97,19 @@ func (r *ProductsRepository) UpdateProduct(ctx context.Context, id string, produ
 
 func (r *ProductsRepository) GetProductsPage(ctx context.Context, page string, limitString string, sort []string, category string) ([]models.Product, error) {
 	var products []models.Product
-	column := sort[0]
-	order := sort[1]
+	var column, order string
+	if len(sort) == 2 {
+		column := sort[0]
+		order := sort[1]
+	}
+	sortQuery := "ORDER BY " + column + " " + order
+	if category == "" {
+		categoryQuery := ""
+	} else {
+		categoryQuery := "WHERE category_id = $3"
+	}
 
-	query := `SELECT * FROM products.products WHERE category_id = $3 ORDER BY ` + column + ` ` + order + ` LIMIT $1 OFFSET $2`
+	query := `SELECT * FROM products.products WHERE category_id = $3 ` + sortQuery + ` LIMIT $1 OFFSET $2`
 	p, err := strconv.Atoi(page)
 	limit, err := strconv.Atoi(limitString)
 	if err != nil {
