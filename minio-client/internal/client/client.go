@@ -80,6 +80,7 @@ func (mc *MinioClient) GetPresignedURL(ctx context.Context, objectName string, e
 			Url:        url.String(),
 			ExpiresAt:  time.Now().Add(expiry),
 		}
+		log.Println("presignedURL", presignedURL)
 		if err != nil {
 			return "", err
 		}
