@@ -20,3 +20,7 @@ use (
 use (
 	./od-service
 )
+
+use (
+	./minio-client
+)
