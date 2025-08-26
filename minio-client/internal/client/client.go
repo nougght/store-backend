@@ -74,7 +74,7 @@ func (mc *MinioClient) GetPresignedURL(ctx context.Context, objectName string, e
 	} else {
 		reqParams := make(url.Values)
 		url, err := mc.Client.PresignedGetObject(ctx, mc.BucketName, objectName, expiry, reqParams)
-		presignedURL := &models.Url{
+		presignedURL = &models.Url{
 			ObjectName: objectName,
 			BucketName: mc.BucketName,
 			Url:        url.String(),
