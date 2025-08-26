@@ -14,10 +14,8 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
-
-	"minio-client/internal/repositories"
 	"minio-client/internal/models"
-
+	"minio-client/internal/repositories"
 )
 
 // MinioClient обёртка
@@ -64,12 +62,15 @@ func (mc *MinioClient) UploadImage(ctx context.Context, objectName string, data 
 // GetPresignedURL генерирует ссылку для скачивания изображения (GET)
 func (mc *MinioClient) GetPresignedURL(ctx context.Context, objectName string, expiry time.Duration) (string, error) {
 	isExist, err := mc.UrlsRepo.IsUrlExist(ctx, objectName)
-	if (err != nil) {
+	if err != nil {
 		return "", err
 	}
 	var presignedURL *models.Url
-	if (isExist) {
+	if isExist {
 		presignedURL, err = mc.UrlsRepo.GetUrlByObjectName(ctx, objectName)
+		if err != nil {
+			return "", err
+		}
 	} else {
 		reqParams := make(url.Values)
 		url, err := mc.Client.PresignedGetObject(ctx, mc.BucketName, objectName, expiry, reqParams)
@@ -121,7 +122,7 @@ func (mc *MinioClient) PutPresignedUrl(ctx context.Context, bucket, objectName s
 	return presignedURL.String(), nil
 }
 
-func  (mc *MinioClient) RenameMinIOObject(bucket, oldName, newName string) error {
+func (mc *MinioClient) RenameMinIOObject(bucket, oldName, newName string) error {
 	// 1. Копируем объект
 	_, err := mc.Client.CopyObject(
 		context.Background(),
@@ -152,7 +153,7 @@ func  (mc *MinioClient) RenameMinIOObject(bucket, oldName, newName string) error
 	return nil
 }
 
-func  (mc *MinioClient) RenumberImages(bucket, productID string) error {
+func (mc *MinioClient) RenumberImages(bucket, productID string) error {
 	// 1. Получаем список объектов
 	objectsCh := mc.Client.ListObjects(context.Background(), bucket, minio.ListObjectsOptions{
 		Prefix:    fmt.Sprintf("products/%s/", productID),
@@ -189,7 +190,7 @@ func  (mc *MinioClient) RenumberImages(bucket, productID string) error {
 			newKey := fmt.Sprintf("products/%s_%d.%s", productID, newNum, ext)
 
 			// Копируем с новым именем
-			err := mc.RenameMinIOObject( bucket, key, newKey)
+			err := mc.RenameMinIOObject(bucket, key, newKey)
 			if err != nil {
 				log.Println(err)
 				return err
