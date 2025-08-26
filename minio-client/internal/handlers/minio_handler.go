@@ -150,6 +150,7 @@ func (h *MinioHandler) ListProductImages(c *gin.Context) {
 		}
 		url, err := h.service.GetPresignedURL(ctx, object.Key, 15*time.Minute)
 		if err != nil {
+			log.Println(err)
 			continue
 		}
 		images = append(images, gin.H{"object_name": object.Key, "url": url})
