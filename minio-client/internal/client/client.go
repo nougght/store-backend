@@ -84,7 +84,10 @@ func (mc *MinioClient) GetPresignedURL(ctx context.Context, objectName string, e
 		if err != nil {
 			return "", err
 		}
-		mc.UrlsRepo.CreateUrl(ctx, presignedURL)
+		err = mc.UrlsRepo.CreateUrl(ctx, presignedURL)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	if err != nil {
