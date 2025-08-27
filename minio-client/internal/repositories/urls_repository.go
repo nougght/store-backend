@@ -39,8 +39,9 @@ func (r *UrlsRepository) GetUrlByObjectName(ctx context.Context, objectName stri
 }
 
 func (r *UrlsRepository) CreateUrl(ctx context.Context, url *models.Url) error {
-	query := `INSERT INTO minio.urls (object_name, bucket_name, url, expires_at) VALUES ($1, $2, $3, $4) RETURNING id`
-	return r.db.QueryRowxContext(ctx, query, url.ObjectName, url.BucketName, url.Url, url.ExpiresAt).StructScan(url)
+	query := `INSERT INTO minio.urls (object_name, bucket_name, url, expires_at) VALUES ($1, $2, $3, $4)`
+	_, err := r.db.ExecContext(ctx, query, url.ObjectName, url.BucketName, url.Url, url.ExpiresAt)
+	return err
 }
 
 func (r *UrlsRepository) UpdateUrl(ctx context.Context, url *models.Url) error {
