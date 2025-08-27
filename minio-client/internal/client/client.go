@@ -160,7 +160,7 @@ func (mc *MinioClient) RenameMinIOObject(bucket, oldName, newName string) error 
 func (mc *MinioClient) RenumberImages(bucket, productID string) error {
 	// 1. Получаем список объектов
 	objectsCh := mc.Client.ListObjects(context.Background(), bucket, minio.ListObjectsOptions{
-		Prefix:    fmt.Sprintf("products/%s/", productID),
+		Prefix:    fmt.Sprintf("products/%s_", productID),
 		Recursive: true,
 	})
 
@@ -188,7 +188,6 @@ func (mc *MinioClient) RenumberImages(bucket, productID string) error {
 		oldNum, _ := strconv.Atoi(numExt[0])
 		ext := numExt[1]
 
-		// Если номер > удаленного — уменьшаем его
 		if oldNum != i {
 			newNum := i
 			newKey := fmt.Sprintf("products/%s_%d.%s", productID, newNum, ext)
