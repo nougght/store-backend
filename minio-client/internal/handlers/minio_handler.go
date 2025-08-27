@@ -47,7 +47,7 @@ func (h *MinioHandler) GetProductUploadURL(c *gin.Context) {
 
 	objectName := fmt.Sprintf("products/%s_%d.%s", productID, number, ext)
 	log.Println(objectName)
-	url, err := h.service.Client.PresignedPutObject(c.Request.Context(), h.service.BucketName, objectName, 15*time.Minute)
+	url, err := h.service.Client.PresignedPutObject(c.Request.Context(), h.service.BucketName, objectName, 30*time.Minute)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot generate presigned put url"})
 		return
@@ -88,7 +88,7 @@ func (h *MinioHandler) GetProductImageURL(c *gin.Context) {
 	}
 
 	objectName := fmt.Sprintf("products/%s_%d", productID, number)
-	url, err := h.service.GetPresignedURL(c.Request.Context(), objectName, 15*time.Minute)
+	url, err := h.service.GetPresignedURL(c.Request.Context(), objectName, 24*time.Hour*7)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
 		return
@@ -143,12 +143,13 @@ func (h *MinioHandler) ListProductImages(c *gin.Context) {
 	})
 
 	var images []gin.H
+	t := 24 * time.Hour * 7
 	for object := range objectCh {
 		if object.Err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "list error"})
 			return
 		}
-		url, err := h.service.GetPresignedURL(ctx, object.Key, 15*time.Minute)
+		url, err := h.service.GetPresignedURL(ctx, object.Key, t)
 		if err != nil {
 			log.Println(err)
 			continue

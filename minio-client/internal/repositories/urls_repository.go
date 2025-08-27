@@ -18,8 +18,7 @@ func NewUrlsRepository(db *sqlx.DB) *UrlsRepository {
 
 func (r *UrlsRepository) IsUrlExist(ctx context.Context, objectName string) (bool, error) {
 	var exists bool
-	//  AND NOW() < expires_at)
-	query := "SELECT EXISTS(SELECT 1 FROM minio.urls WHERE object_name = $1)"
+	query := "SELECT EXISTS(SELECT 1 FROM minio.urls WHERE object_name = $1) AND NOW() < expires_at)"
 	err := r.db.GetContext(ctx, &exists, query, objectName)
 	if err != nil {
 		return false, err
