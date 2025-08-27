@@ -55,7 +55,7 @@ func (r *UrlsRepository) AddUrl(ctx context.Context, url *models.Url) error {
 				DO UPDATE SET
 					url = EXCLUDED.url,
 					expires_at = EXCLUDED.expires_at,
-					bucket_name = EXCLUDED.bucket_name,`
+					bucket_name = EXCLUDED.bucket_name`
 	_, err := r.db.ExecContext(ctx, query, url.BucketName, url.Url, url.ExpiresAt, url.ObjectName)
 	return err
 }
