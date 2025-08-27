@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"log"
 	"minio-client/internal/models"
 
 	"github.com/jmoiron/sqlx"
@@ -23,6 +24,7 @@ func (r *UrlsRepository) IsUrlExist(ctx context.Context, objectName string) (boo
 	if err != nil {
 		return false, err
 	}
+	log.Println("exists", exists)
 	return exists, nil
 }
 
@@ -47,7 +49,7 @@ func (r *UrlsRepository) UpdateUrl(ctx context.Context, url *models.Url) error {
 	return err
 }
 
-func (r * UrlsRepository) AddUrl(ctx context.Context, url *models.Url) error {
+func (r *UrlsRepository) AddUrl(ctx context.Context, url *models.Url) error {
 	query := `INSERT INTO minio.urls (object_name, bucket_name, url, expires_at) VALUES ($1, $2, $3, $4)
 				ON CONFLICT(object_name)
 				DO UPDATE SET
