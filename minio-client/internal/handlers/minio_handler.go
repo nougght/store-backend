@@ -169,7 +169,25 @@ func (h *MinioHandler) GetCategoryImageURL(c *gin.Context) {
 	categoryID := c.Param("category_id")
 	ext := c.Param("ext")
 
-	url, err := h.service.GetPresignedURL(c.Request.Context(), "categories/"+categoryID+"."+ext, 15*time.Minute)
+	objectCh := h.service.Client.ListObjects(c.Request.Context(), h.service.BucketName, minio.ListObjectsOptions{
+		Prefix:    "categories/" + categoryID + "." + ext, // часть ключа без расширения
+		Recursive: true,
+	})
+
+	var key string
+	for object := range objectCh {
+		if object.Err != nil {
+			log.Fatalln(object.Err)
+		}
+		key = object.Key
+		break // берём только первый найденный
+	}
+
+	if key == "" {
+		log.Println("Файл не найден")
+		return
+	}
+	url, err := h.service.GetPresignedURL(c.Request.Context(), key, 15*time.Minute)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
 		return
@@ -182,7 +200,7 @@ func (h *MinioHandler) DeleteCategoryImage(c *gin.Context) {
 	categoryID := c.Param("category_id")
 	ext := c.Param("ext")
 
-	err := h.service.DeleteImage(c.Request.Context(), "categories/"+categoryID+"." + ext)
+	err := h.service.DeleteImage(c.Request.Context(), "categories/"+categoryID+"."+ext)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "delete failed"})
 		return
