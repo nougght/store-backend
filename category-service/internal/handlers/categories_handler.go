@@ -25,8 +25,8 @@ func NewCategoryHandler(service *services.CategoriesService) *CategoriesHandler 
 }
 
 func (h *CategoriesHandler) PostCategory(c *gin.Context) {
-	var category *models.Category
-	err := c.ShouldBindJSON(category)
+	var category models.Category
+	err := c.ShouldBindJSON(&category)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input" + err.Error()})
 		return
@@ -118,8 +118,8 @@ func (h *CategoriesHandler) GetCategories(c *gin.Context) {
 
 func (h *CategoriesHandler) UpdateCategory(c *gin.Context) {
 
-	var category *models.Category
-	err := c.ShouldBindJSON(category)
+	var category models.Category
+	err := c.ShouldBindJSON(&category)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
 		return
