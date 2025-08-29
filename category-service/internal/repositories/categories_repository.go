@@ -17,7 +17,7 @@ func NewCategoriesRepository(db *sqlx.DB) *CategoriesRepository {
 
 func (r *CategoriesRepository) CreateCategory(ctx context.Context, category *models.Category) error {
 	query := `INSERT INTO categories.categories (name, is_active) VALUES ($1, $2) RETURNING id`
-	return r.db.QueryRowxContext(ctx, query, category.Name, category.IsActive).StructScan(&category)
+	return r.db.QueryRowxContext(ctx, query, category.Name, category.IsActive).StructScan(category)
 }
 
 func (r *CategoriesRepository) GetCategories(ctx context.Context) ([]models.Category, error) {
