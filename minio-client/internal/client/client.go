@@ -61,11 +61,12 @@ func (mc *MinioClient) UploadImage(ctx context.Context, objectName string, data 
 
 // GetPresignedURL генерирует ссылку для скачивания изображения (GET)
 func (mc *MinioClient) GetPresignedURL(ctx context.Context, objectName string, expiry time.Duration) (string, error) {
-	isExist, err := mc.UrlsRepo.IsUrlExist(ctx, objectName)
-	if err != nil {
-		return "", err
+	isExist, er := mc.UrlsRepo.IsUrlExist(ctx, objectName)
+	if er != nil {
+		return "", er
 	}
 	var presignedURL *models.Url
+	var err error
 	if isExist {
 		presignedURL, err = mc.UrlsRepo.GetUrlByObjectName(ctx, objectName)
 		if err != nil {
@@ -73,7 +74,11 @@ func (mc *MinioClient) GetPresignedURL(ctx context.Context, objectName string, e
 		}
 	} else {
 		reqParams := make(url.Values)
-		url, err := mc.Client.PresignedGetObject(ctx, mc.BucketName, objectName, expiry, reqParams)
+		var url *url.URL
+		url, err = mc.Client.PresignedGetObject(ctx, mc.BucketName, objectName, expiry, reqParams)
+		if err != nil {
+			return "", err
+		}
 		presignedURL = &models.Url{
 			ObjectName: objectName,
 			BucketName: mc.BucketName,
@@ -81,9 +86,6 @@ func (mc *MinioClient) GetPresignedURL(ctx context.Context, objectName string, e
 			ExpiresAt:  time.Now().Add(expiry),
 		}
 		log.Println("presignedURL", presignedURL)
-		if err != nil {
-			return "", err
-		}
 		err = mc.UrlsRepo.AddUrl(ctx, presignedURL)
 		if err != nil {
 			return "", err
