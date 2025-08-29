@@ -167,8 +167,9 @@ func (h *MinioHandler) ListProductImages(c *gin.Context) {
 
 func (h *MinioHandler) GetCategoryImageURL(c *gin.Context) {
 	categoryID := c.Param("category_id")
+	ext := c.Param("ext")
 
-	url, err := h.service.GetPresignedURL(c.Request.Context(), "categories/"+categoryID, 15*time.Minute)
+	url, err := h.service.GetPresignedURL(c.Request.Context(), "categories/"+categoryID+"."+ext, 15*time.Minute)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
 		return
@@ -179,8 +180,9 @@ func (h *MinioHandler) GetCategoryImageURL(c *gin.Context) {
 
 func (h *MinioHandler) DeleteCategoryImage(c *gin.Context) {
 	categoryID := c.Param("category_id")
+	ext := c.Param("ext")
 
-	err := h.service.DeleteImage(c.Request.Context(), "categories/"+categoryID)
+	err := h.service.DeleteImage(c.Request.Context(), "categories/"+categoryID+"." + ext)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "delete failed"})
 		return
