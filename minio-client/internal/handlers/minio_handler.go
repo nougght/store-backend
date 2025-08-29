@@ -184,7 +184,8 @@ func (h *MinioHandler) GetCategoryImageURL(c *gin.Context) {
 	}
 
 	if key == "" {
-		// return
+		c.JSON(http.StatusOK, gin.H{"url": ""})
+		return
 	}
 	url, err := h.service.GetPresignedURL(c.Request.Context(), key, 15*time.Minute)
 	if err != nil {
