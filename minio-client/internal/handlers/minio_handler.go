@@ -184,12 +184,12 @@ func (h *MinioHandler) GetCategoryImageURL(c *gin.Context) {
 	}
 
 	if key == "" {
-		log.Println("Файл не найден")
+		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
 		return
 	}
 	url, err := h.service.GetPresignedURL(c.Request.Context(), key, 15*time.Minute)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "url error"})
 		return
 	}
 
