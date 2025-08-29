@@ -8,9 +8,8 @@ import (
 	// "encoding/base64"
 	"fmt"
 	// "io"
-	"os"
 	"image/png"
-	
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nfnt/resize"
@@ -26,7 +25,7 @@ func NewCategoryHandler(service *services.CategoriesService) *CategoriesHandler 
 }
 
 func (h *CategoriesHandler) PostCategory(c *gin.Context) {
-	var category models.Category
+	var category *models.Category
 	err := c.ShouldBindJSON(category)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input" + err.Error()})
@@ -117,11 +116,9 @@ func (h *CategoriesHandler) GetCategories(c *gin.Context) {
 
 }
 
-
-
 func (h *CategoriesHandler) UpdateCategory(c *gin.Context) {
 
-	var category models.Category
+	var category *models.Category
 	err := c.ShouldBindJSON(category)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
@@ -134,7 +131,6 @@ func (h *CategoriesHandler) UpdateCategory(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "updated"})
 }
-
 
 func (h *CategoriesHandler) DeleteCategory(c *gin.Context) {
 	id := c.Param("id")
