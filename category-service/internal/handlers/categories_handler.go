@@ -33,8 +33,8 @@ func (h *CategoriesHandler) PostCategory(c *gin.Context) {
 	}
 
 	if err := h.service.CreateCategory(c.Request.Context(), category); err != nil {
-
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add category" + err.Error()})
+		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"id": category.ID, "status": "added"})
 }
